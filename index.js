@@ -1,61 +1,29 @@
-var stage;
-var playerScore;
-var hitPadUp, hitPadDown, hitPadLeft, hitPadRight;
-var circleUp, circleDown, circleLeft, circleRight;
-var circleRadius = 50;
-var hitPadRadius = 60;
-var heldKeys = {};
+let stage;
+let playerScore;
+let hitPadUp, hitPadDown, hitPadLeft, hitPadRight;
+let circleUp, circleDown, circleLeft, circleRight;
+let circleRadius = 50, hitPadRadius = 60;
+let heldKeys = {};
+let center = { 'x' : 500, 'y' : 300};
+let interval = 1000;
+let list = [];
+let index = 0;
 
 function init() {
-	var interval = 1000;
+	stage = new createjs.Stage("demoCanvas");
+
 	playerScore = new createjs.Text('0', 'bold 20px Arial', '#A3FF24');
 	playerScore.x = 211;
 	playerScore.y = 20;
-	stage = new createjs.Stage("demoCanvas");
-
-	hitPadUp = new createjs.Shape();
-	hitPadUp.graphics.beginFill("Pink").drawCircle(0, 0, 60);
-	hitPadUp.x = 500;
-	hitPadUp.y = 60;
-	hitPadUp.alpha = 0.5;
-	hitPadDown = new createjs.Shape();
-	hitPadDown.graphics.beginFill("Pink").drawCircle(0, 0, 60);
-	hitPadDown.x = 500;
-	hitPadDown.y = 540;
-	hitPadUp.alpha = 0.5;
-	hitPadLeft = new createjs.Shape();
-	hitPadLeft.graphics.beginFill("Pink").drawCircle(0, 0, 60);
-	hitPadLeft.x = 60;
-	hitPadLeft.y = 300;
-	hitPadUp.alpha = 0.5;
-	hitPadRight = new createjs.Shape();
-	hitPadRight.graphics.beginFill("Pink").drawCircle(0, 0, 60);
-	hitPadRight.x = 940;
-	hitPadRight.y = 300;
-	hitPadUp.alpha = 0.5;
-
-	circleUp = new createjs.Shape();
-	circleUp.graphics.beginFill("Crimson").drawCircle(0, 0, 50);
-	circleUp.x = 500;
-	circleUp.y = 300;
-	circleDown = new createjs.Shape();
-	circleDown.graphics.beginFill("Yellow").drawCircle(0, 0, 50);
-	circleDown.x = 500;
-	circleDown.y = 300;
-	circleLeft = new createjs.Shape();
-	circleLeft.graphics.beginFill("Green").drawCircle(0, 0, 50);
-	circleLeft.x = 500;
-	circleLeft.y = 300;
-	circleRight = new createjs.Shape();
-	circleRight.graphics.beginFill("Blue").drawCircle(0, 0, 50);
-	circleRight.x = 500;
-	circleRight.y = 300;
-
 	stage.addChild(playerScore);
-	stage.addChild(hitPadUp);
-	stage.addChild(hitPadDown);
-	stage.addChild(hitPadLeft);
-	stage.addChild(hitPadRight);
+
+	viewSetting();
+
+
+	// for (var i = 0; i < 10; i++){
+	// 	list.push();
+	// }
+	
 	stage.addChild(circleUp);
 	stage.addChild(circleDown);
 	stage.addChild(circleLeft);
@@ -74,6 +42,61 @@ function init() {
 
 };
 
+
+
+// Function
+function getCircle(mode) {
+	let tmp = new createjs.Shape();
+	switch (mode) {
+		case "up":
+			tmp.graphics.beginFill("Crimson").drawCircle(0, 0, 50);
+			break;
+		case "down":
+			tmp.graphics.beginFill("Yellow").drawCircle(0, 0, 50);
+			break;
+		case "left":
+			tmp.graphics.beginFill("Green").drawCircle(0, 0, 50);
+			break;
+		case "right":
+			tmp.graphics.beginFill("Blue").drawCircle(0, 0, 50);
+			break;
+	}
+	tmp.x = center.x;
+	tmp.y = center.y;
+	return tmp;
+}
+
+function viewSetting() {
+	hitPadUp = new createjs.Shape();
+	hitPadUp.graphics.beginFill("Pink").drawCircle(0, 0, 60);
+	hitPadUp.x = 500;
+	hitPadUp.y = 60;
+	hitPadUp.alpha = 0.5;
+	stage.addChild(hitPadUp);
+
+	hitPadDown = new createjs.Shape();
+	hitPadDown.graphics.beginFill("Pink").drawCircle(0, 0, 60);
+	hitPadDown.x = 500;
+	hitPadDown.y = 540;
+	hitPadDown.alpha = 0.5;
+	stage.addChild(hitPadDown);
+
+	hitPadLeft = new createjs.Shape();
+	hitPadLeft.graphics.beginFill("Pink").drawCircle(0, 0, 60);
+	hitPadLeft.x = 60;
+	hitPadLeft.y = 300;
+	hitPadLeft.alpha = 0.5;
+	stage.addChild(hitPadLeft);
+
+	hitPadRight = new createjs.Shape();
+	hitPadRight.graphics.beginFill("Pink").drawCircle(0, 0, 60);
+	hitPadRight.x = 940;
+	hitPadRight.y = 300;
+	hitPadRight.alpha = 0.5;
+	stage.addChild(hitPadRight);
+}
+
+// Key Setting
 document.onkeydown = function(e) {
 	console.log(heldKeys[e.keyCode]);
 	if (heldKeys[e.keyCode] == true) {
