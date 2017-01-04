@@ -1,5 +1,5 @@
 let stage;
-let playerScore;
+let playerScore, perfectCombo, goodCombo;
 let hitPadUp, hitPadDown, hitPadLeft, hitPadRight;
 let circleUp, circleDown, circleLeft, circleRight;
 let circleRadius = 50, hitPadRadius = 60;
@@ -17,13 +17,22 @@ function init() {
 	playerScore.y = 20;
 	stage.addChild(playerScore);
 
+	perfectCombo = new createjs.Text('Perfect', 'bold 50px Arial', '#A3FF24');
+	perfectCombo.x = 400;
+	perfectCombo.y = 200;
+	
+	goodCombo = new createjs.Text('Good', 'bold 50px Arial', '#A3FF24');
+	goodCombo.x = 400;
+	goodCombo.y = 200;
+	
+	
+	
 	viewSetting();
 
-
-	// for (var i = 0; i < 10; i++){
-	// 	list.push();
-	// }
-	
+	circleUp = getCircle("up");
+	circleDown = getCircle("down");
+	circleLeft = getCircle("left");
+	circleRight = getCircle("right");
 	stage.addChild(circleUp);
 	stage.addChild(circleDown);
 	stage.addChild(circleLeft);
@@ -70,35 +79,86 @@ function viewSetting() {
 	hitPadUp = new createjs.Shape();
 	hitPadUp.graphics.beginFill("Pink").drawCircle(0, 0, 60);
 	hitPadUp.x = 500;
-	hitPadUp.y = 60;
-	hitPadUp.alpha = 0.5;
+	hitPadUp.y = 70;
+	hitPadUp.shadow = new createjs.Shadow("#f44295", 0, 5, 10);
 	stage.addChild(hitPadUp);
 
 	hitPadDown = new createjs.Shape();
 	hitPadDown.graphics.beginFill("Pink").drawCircle(0, 0, 60);
 	hitPadDown.x = 500;
-	hitPadDown.y = 540;
-	hitPadDown.alpha = 0.5;
+	hitPadDown.y = 530;
+	hitPadDown.shadow = new createjs.Shadow("#f44295", 0, 5, 10);
 	stage.addChild(hitPadDown);
 
 	hitPadLeft = new createjs.Shape();
 	hitPadLeft.graphics.beginFill("Pink").drawCircle(0, 0, 60);
-	hitPadLeft.x = 60;
+	hitPadLeft.x = 70;
 	hitPadLeft.y = 300;
-	hitPadLeft.alpha = 0.5;
+	hitPadLeft.shadow = new createjs.Shadow("#f44295", 0, 5, 10);
 	stage.addChild(hitPadLeft);
 
 	hitPadRight = new createjs.Shape();
 	hitPadRight.graphics.beginFill("Pink").drawCircle(0, 0, 60);
-	hitPadRight.x = 940;
+	hitPadRight.x = 930;
 	hitPadRight.y = 300;
-	hitPadRight.alpha = 0.5;
+	hitPadRight.shadow = new createjs.Shadow("#f44295", 0, 5, 10);
 	stage.addChild(hitPadRight);
+}
+function removePerfectCombo() {
+	stage.removeChild(perfectCombo);
+}
+function removeGoodCombo() {
+	stage.removeChild(goodCombo);
+}
+function comboEffect(circle, hitPad, coord) {
+	var perfect = 20;
+	var good = 40;
+	if(coord=="x") {
+		if(circle.x<=hitPad.x+perfect && circle.x>=hitPad.x-perfect) {
+			console.log("perfect");
+			stage.addChild(perfectCombo);
+			createjs.Tween.get(perfectCombo).wait(500).call( removePerfectCombo );
+			playerScore.text = parseInt(playerScore.text + 1);
+			return true;
+		}
+		else if(circle.x<=hitPad.x+good && circle.x>=hitPad.x-good) {
+			console.log("good");
+			stage.addChild(goodCombo);
+			createjs.Tween.get(goodCombo).wait(500).call( removeGoodCombo );
+			playerScore.text = parseInt(playerScore.text + 1);
+			return true;
+		}
+		else if(circle.x+circleRadius>=hitPad.x-hitPadRadius && circle.x-circleRadius<=hitPad.x+hitPadRadius) {	//normal
+			playerScore.text = parseInt(playerScore.text + 1);
+			return true;
+		}
+	}
+	else if(coord=="y") {
+		if(circle.y<=hitPad.y+perfect && circle.y>=hitPad.y-perfect) {
+			console.log("perfect");
+			stage.addChild(perfectCombo);
+			createjs.Tween.get(perfectCombo).wait(500).call( removePerfectCombo );
+			playerScore.text = parseInt(playerScore.text + 1);
+			return true;
+		}
+		else if(circle.y<=hitPad.y+good && circle.y>=hitPad.y-good) {
+			console.log("good");
+			stage.addChild(goodCombo);
+			createjs.Tween.get(goodCombo).wait(500).call( removeGoodCombo );
+			playerScore.text = parseInt(playerScore.text + 1);
+			return true;
+		}
+		else if(circle.y+circleRadius>=hitPad.y-hitPadRadius && circle.y-circleRadius<=hitPad.y+hitPadRadius) {	//normal
+			playerScore.text = parseInt(playerScore.text + 1);
+			return true;
+		}
+	}
+	return false;
 }
 
 // Key Setting
 document.onkeydown = function(e) {
-	console.log(heldKeys[e.keyCode]);
+	//console.log(heldKeys[e.keyCode]);
 	if (heldKeys[e.keyCode] == true) {
 		return;
 	}
@@ -106,39 +166,57 @@ document.onkeydown = function(e) {
 	switch(e.keyCode) {
 		case 37:
 			console.log("left");
-			if(circleLeft.x+circleRadius>=hitPadLeft.x-hitPadRadius && circleLeft.x-circleRadius<=hitPadLeft.x+hitPadRadius) {
-				playerScore.text = parseInt(playerScore.text + 1);
+			hitPadLeft.shadow = null;
+			comboEffect(circleLeft, hitPadLeft, "x")
+			/*if( comboEffect(circleLeft, hitPadLeft, "x") ) {
 				stage.removeChild(circleLeft);
 				circleLeft = null;
-			}
+			}*/
 			break;
 		case 38:
 			console.log("up");
-			if(circleUp.y+circleRadius>=hitPadUp.y-hitPadRadius && circleUp.y-circleRadius<=hitPadUp.y+hitPadRadius) {
-				playerScore.text = parseInt(playerScore.text + 1);
+			hitPadUp.shadow = null;
+			comboEffect(circleUp, hitPadUp, "y");
+			/*if( comboEffect(circleUp, hitPadUp, "y") ) {
 				stage.removeChild(circleUp);
 				circleUp = null;
-			}
+			}*/
 			break;
 		case 39:
 			console.log("right");
-			if(circleRight.x+circleRadius>=hitPadRight.x-hitPadRadius && circleRight.x-circleRadius<=hitPadRight.x+hitPadRadius) {
-				playerScore.text = parseInt(playerScore.text + 1);
+			hitPadRight.shadow = null;
+			comboEffect(circleRight, hitPadRight, "x");
+			/*if( comboEffect(circleRight, hitPadRight, "x") ) {
 				stage.removeChild(circleRight);
 				circleRight = null;
-			}
+			}*/
 			break;
 		case 40:
 			console.log("down");
-			if(circleDown.y+circleRadius>=hitPadDown.y-hitPadRadius && circleDown.x-circleRadius<=hitPadDown.x+hitPadRadius) {
-				playerScore.text = parseInt(playerScore.text + 1);
+			hitPadDown.shadow = null;
+			comboEffect(circleDown, hitPadDown, "y");
+			/*if( comboEffect(circleDown, hitPadDown, "y") ) {
 				stage.removeChild(circleDown);
 				circleDown = null;
-			}
+			}*/
+			break;
 	}
 };
 
 document.onkeyup = function(e) {
-	console.log(heldKeys[e.keyCode]);
+	//console.log(heldKeys[e.keyCode]);
 	delete heldKeys[e.keyCode];
+	switch(e.keyCode) {
+		case 37:
+			hitPadLeft.shadow = new createjs.Shadow("#f44295", 0, 5, 10);
+			break;
+		case 38:
+			hitPadUp.shadow = new createjs.Shadow("#f44295", 0, 5, 10);
+			break;
+		case 39:
+			hitPadRight.shadow = new createjs.Shadow("#f44295", 0, 5, 10);
+			break;
+		case 40:
+			hitPadDown.shadow = new createjs.Shadow("#f44295", 0, 5, 10);
+	}
 };
