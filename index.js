@@ -23,7 +23,11 @@ function init() {
 	// for (var i = 0; i < 10; i++){
 	// 	list.push();
 	// }
-	
+	circleUp=getCircle("up");
+	circleDown=getCircle("down");
+	circleLeft=getCircle("left");
+	circleRight=getCircle("right");
+
 	stage.addChild(circleUp);
 	stage.addChild(circleDown);
 	stage.addChild(circleLeft);
