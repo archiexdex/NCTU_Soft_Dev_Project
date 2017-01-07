@@ -15,6 +15,8 @@ var measure = 1;
 var bpm = 150;
 var songLength = 91;
 var songContent = [30,32,34,35,40,42,44,45,50,52,54,55,56,60,62,64,70,72,74,75,80,82,84,85,90,92,94,95,96,100,102,104,110,112,114,120,124,130,132,134,140,150,152,154,160,164,170,172,174,180,190,192,194,200,204,210,212,214,220,224,230,232,234,240,244,250,252,254,260,270,274,280,282,284,290,294,300,302,304,310,314,320,322,324,330,332,334,340,350,352,354,360,362,364,370,374,380,382,384,390,392,394,400,402,404,410,414,420,422,424,430,440,450,460,464,470,472,474,480,482,484,490,492,494,500,504,510,550,560,570,580,590,600,610,620,630,634,640,650,670,672,674,680,682,684,690,694,700,702,704,710,712,714,720,722,724,730,734,740,742,744,750,760,770,780,784,790,792,794,800,802,804,810,812,814,820,824,830,870,872,874,880,884,890,892,894,900,904,910];
+var soundID0 = "Seasons of Asia";
+
 
 //Start page
 var bg;
@@ -30,7 +32,13 @@ var rank_list;
 var SelectView = new createjs.Container();
 
 
-function song() {
+function beatGenerator() {
+	if( measure > songLength ) {
+		stage.removeEventListener("tick", beatGenerator);
+		removeMainView();
+		addFinalScoreView();
+		return;
+	}
 	beatPoint++;
 	if(beatPoint==75) {	//beatPoint
 		beatPoint = 0;
@@ -51,14 +59,14 @@ function song() {
 			circleUp.graphics.beginFill("Crimson").drawCircle(0, 0, 50);
 			circleUp.x = center.x;
 			circleUp.y = center.y;
-			createjs.Tween.get(circleUp, {loop: false})
-	  .to({y: -100}, interval);
-	  stage.addChild(circleUp);
+			createjs.Tween.get(circleUp).to({y: -100}, interval);
+			stage.addChild(circleUp);
 		}
 	}
 }
 
 function init() {
+	createjs.Sound.registerSound("Seasons_of_Asia.mp3", soundID0);
 	stage = new createjs.Stage("demoCanvas");
 	stage.canvas.width = window.innerWidth-20;
 	stage.canvas.height = window.innerHeight-20;
@@ -78,6 +86,13 @@ function init() {
 }
 
 // Function
+
+function addFinalScoreView() {
+	var finalScore = new createjs.Text('Final Score', 'bold 120px Arial', '#0099CC');
+	finalScore.x=window.innerWidth/2-title.getMeasuredWidth()/2;
+	finalScore.y=window.innerHeight/2-220;
+	stage.addChild(finalScore);
+}
 
 function addTitleView(){
 
@@ -101,7 +116,7 @@ function addTitleView(){
 function tweenTitleView(){
     // Start Game
     createjs.Tween.get(TitleView).to({y:-700}, 300).call(selectPage);
-		// createjs.Ticker.addEventListener("tick", song);
+	// createjs.Ticker.addEventListener("tick", song);
 }
 
 function selectPage(){
@@ -171,7 +186,7 @@ function selectPage(){
 	var song_2=song(2);
 	var song_3=song(3);
 
-	var song_0_text=song_text('Love Forever',0);
+	var song_0_text=song_text('太鼓の達人 『季曲 ～Seasons of Asia～』',0);
 	var song_1_text=song_text('One Dream',1);
 	var song_2_text=song_text('Lean on',2);
 	var song_3_text=song_text('Hellhold',3);
@@ -210,7 +225,7 @@ function selectPage(){
 	play.alpha=0.5;
 	play.graphics.beginFill("#99FFFF").drawCircle(window.innerWidth/2, window.innerHeight/2-150, 100);
 
-  var play_text = new createjs.Text('PLAY','bold 65px Arial','#FF0000');
+	var play_text = new createjs.Text('PLAY','bold 65px Arial','#FF0000');
 	play_text.x=window.innerWidth/2-play_text.getMeasuredWidth()/2;
 	play_text.y=window.innerHeight/2-150-play_text.getMeasuredHeight()/2;
 	play_text.shadow = new createjs.Shadow("#f44295", 0, 5, 10);
@@ -225,7 +240,8 @@ function selectPage(){
 function tweenSelecePage(){
     // Start Game
     createjs.Tween.get(SelectView).to({y:-1000}, 0).call(viewSetting);
-		createjs.Ticker.addEventListener("tick", song);
+	createjs.Sound.play(soundID0);
+	createjs.Ticker.addEventListener("tick", beatGenerator);
 }
 
 function rankText(name,number){
@@ -285,6 +301,15 @@ function getCircle(mode) {
 	return tmp;
 }
 
+function removeMainView() {
+	stage.removeChild(hitPadUp);
+	stage.removeChild(hitPadDown);
+	stage.removeChild(hitPadLeft);
+	stage.removeChild(hitPadRight);
+	stage.removeChild(currentCombo);
+	stage.removeChild(maxCombo);
+}
+
 function viewSetting() {
 
 	circleUp=getCircle("up");
@@ -292,7 +317,7 @@ function viewSetting() {
 	circleLeft=getCircle("left");
 	circleRight=getCircle("right");
 
-	stage.addChild(circleUp);
+	//stage.addChild(circleUp);
 	//stage.addChild(circleDown);
 	//stage.addChild(circleLeft);
 	//stage.addChild(circleRight);
