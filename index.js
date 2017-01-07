@@ -208,11 +208,11 @@ function selectPage(){
 
 	var play = new createjs.Shape();
 	play.alpha=0.5;
-	play.graphics.beginFill("#99FFFF").drawCircle(window.innerWidth/2, window.innerHeight/2-150, 100);
+	play.graphics.beginFill("#99FFFF").drawCircle(window.innerWidth/2, window.innerHeight/2-120, 100);
 
   var play_text = new createjs.Text('PLAY','bold 65px Arial','#FF0000');
 	play_text.x=window.innerWidth/2-play_text.getMeasuredWidth()/2;
-	play_text.y=window.innerHeight/2-150-play_text.getMeasuredHeight()/2;
+	play_text.y=window.innerHeight/2-120-play_text.getMeasuredHeight()/2;
 	play_text.shadow = new createjs.Shadow("#f44295", 0, 5, 10);
 	SelectView.addChild(play_text,play,diff_easy,diff_middle,diff_hard,diff_hell,diff_easy_text,diff_middle_text,diff_hard_text,diff_hell_text,song_0,song_1,song_2,song_3,song_0_text,song_1_text,song_2_text,song_3_text);
 
@@ -238,14 +238,14 @@ function rankText(name,number){
 function diff(number){
 	var diff_tmp = new createjs.Shape();
 	diff_tmp.alpha=0.7;
-	diff_tmp.graphics.beginFill("#CCFFCC").drawRoundRectComplex(350+130*number, window.innerHeight-210, 100 ,250,45,45,0,0);
+	diff_tmp.graphics.beginFill("#CCFFCC").drawRoundRectComplex(window.innerWidth/2-245+130*number, window.innerHeight-210, 100 ,250,45,45,0,0);
 	return diff_tmp;
 }
 
 function diff_text(name,number){
 	var diff_text_tmp = new createjs.Text(name, '35px Arial', '#CCCCCC');
 	diff_text_tmp.rotation = 270;
-	diff_text_tmp.x=400+130*number-diff_text_tmp.getMeasuredHeight()/2;
+	diff_text_tmp.x=window.innerWidth/2-195+130*number-diff_text_tmp.getMeasuredHeight()/2;
 	diff_text_tmp.y=window.innerHeight-50;
 	return diff_text_tmp;
 }
