@@ -23,7 +23,7 @@ function init() {
 	stage.mouseEventsEnabled = true;
 
 	bg = new createjs.Bitmap("bg.jpg");
-	bg.scaleX=1.4;
+	bg.scaleX=1.35;
 	bg.scaleY=1.2;
 
 	stage.addChild(bg);
