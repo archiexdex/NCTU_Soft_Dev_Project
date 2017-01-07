@@ -16,56 +16,11 @@ var bpm = 150;
 var songLength = 91;
 var songContent = [30,32,34,35,40,42,44,45,50,52,54,55,56,60,62,64,70,72,74,75,80,82,84,85,90,92,94,95,96,100,102,104,110,112,114,120,124,130,132,134,140,150,152,154,160,164,170,172,174,180,190,192,194,200,204,210,212,214,220,224,230,232,234,240,244,250,252,254,260,270,274,280,282,284,290,294,300,302,304,310,314,320,322,324,330,332,334,340,350,352,354,360,362,364,370,374,380,382,384,390,392,394,400,402,404,410,414,420,422,424,430,440,450,460,464,470,472,474,480,482,484,490,492,494,500,504,510,550,560,570,580,590,600,610,620,630,634,640,650,670,672,674,680,682,684,690,694,700,702,704,710,712,714,720,722,724,730,734,740,742,744,750,760,770,780,784,790,792,794,800,802,804,810,812,814,820,824,830,870,872,874,880,884,890,892,894,900,904,910];
 	
-
-function init() {
-	stage = new createjs.Stage("demoCanvas");
-	
-	currentCombo = new createjs.Text('0', 'bold 20px Arial', '#A3FF24');
-	currentCombo.x = 200;
-	currentCombo.y = 20;
-	stage.addChild(currentCombo);
-	maxCombo = new createjs.Text('0', 'bold 20px Arial', '#A3FF24');
-	maxCombo.x = 800;
-	maxCombo.y = 20;
-	stage.addChild(maxCombo);
-
-	perfectCombo = new createjs.Text('Perfect', 'bold 50px Arial', '#A3FF24');
-	perfectCombo.x = 400;
-	perfectCombo.y = 200;
-	
-	goodCombo = new createjs.Text('Good', 'bold 50px Arial', '#A3FF24');
-	goodCombo.x = 400;
-	goodCombo.y = 200;
-	
-	missCombo = new createjs.Text('Miss', 'bold 50px Arial', '#A3FF24');
-	missCombo.x = 400;
-	missCombo.y = 200;
-	
-	
-	viewSetting();
-
-	circleUp = getCircle("up");
-	circleDown = getCircle("down");
-	circleLeft = getCircle("left");
-	circleRight = getCircle("right");
-	//stage.addChild(circleUp);
-	//stage.addChild(circleDown);
-	//stage.addChild(circleLeft);
-	//stage.addChild(circleRight);
-
-	createjs.Tween.get(circleUp, {loop: false})
-	  .to({y: -100}, interval);
-	createjs.Tween.get(circleDown, {loop: true})
-	  .to({y: 700}, interval);
-	createjs.Tween.get(circleLeft, {loop: true})
-	  .to({x: -100}, interval);
-	createjs.Tween.get(circleRight, {loop: true})
-	  .to({x: 1100}, interval);
-	createjs.Ticker.setFPS(bpm*4);
-	
-	createjs.Ticker.addEventListener("tick", stage);
-	createjs.Ticker.addEventListener("tick", song);
-};
+var bg;
+var start_button;
+var title;
+var maker;
+var TitleView = new createjs.Container();
 
 function song() {
 	beatPoint++;
@@ -95,7 +50,54 @@ function song() {
 	}
 }
 
+
+
+function init() {
+	stage = new createjs.Stage("demoCanvas");
+	stage.canvas.width = window.innerWidth;
+	stage.canvas.height = window.innerHeight;
+
+	stage.mouseEventsEnabled = true;
+
+	bg = new createjs.Bitmap("bg.jpg");
+	bg.scaleX=1.35;
+	bg.scaleY=1.2;
+
+	stage.addChild(bg);
+
+	createjs.Ticker.setFPS(bpm*4);
+	createjs.Ticker.addEventListener("tick", stage);
+	addTitleView();
+	createjs.Ticker.addEventListener("tick", song);
+}
+
 // Function
+
+function addTitleView(){
+
+	title = new createjs.Text('Musix', 'bold 120px Arial', '#0099CC');
+	title.x=window.innerWidth/2-167;
+	title.y=window.innerHeight/2-220;
+	start_button = new createjs.Text('Start', 'bold 60px Arial', '#0099CC');
+	start_button.x=window.innerWidth/2-70;
+	start_button.y=window.innerHeight/2;
+
+	maker = new createjs.Text('Made by  賴奕融 楊信之 吳斌', '20px Arial', '#3399CC');
+	maker.x=window.innerWidth/2-130;
+	maker.y=window.innerHeight/2+160;
+
+	TitleView.addChild(start_button, title,maker);
+	stage.addChild(TitleView);
+	stage.update();
+
+	start_button.addEventListener("click",tweenTitleView);
+}
+
+function tweenTitleView(){
+    // Start Game
+    createjs.Tween.get(TitleView).to({y:-520}, 300).call(viewSetting);
+}
+
 function getCircle(mode) {
 	let tmp = new createjs.Shape();
 	switch (mode) {
@@ -118,6 +120,27 @@ function getCircle(mode) {
 }
 
 function viewSetting() {
+
+	circleUp=getCircle("up");
+	circleDown=getCircle("down");
+	circleLeft=getCircle("left");
+	circleRight=getCircle("right");
+
+	stage.addChild(circleUp);
+	stage.addChild(circleDown);
+	stage.addChild(circleLeft);
+	stage.addChild(circleRight);
+
+	createjs.Tween.get(circleUp, {loop: true})
+		.to({y: -100}, interval);
+	createjs.Tween.get(circleDown, {loop: true})
+		.to({y: 700}, interval);
+	createjs.Tween.get(circleLeft, {loop: true})
+		.to({x: -100}, interval);
+	createjs.Tween.get(circleRight, {loop: true})
+		.to({x: 1100}, interval);
+
+
 	hitPadUp = new createjs.Shape();
 	hitPadUp.graphics.beginFill("Pink").drawCircle(0, 0, 60);
 	hitPadUp.x = 500;
@@ -145,6 +168,28 @@ function viewSetting() {
 	hitPadRight.y = 300;
 	hitPadRight.shadow = new createjs.Shadow("#f44295", 0, 5, 10);
 	stage.addChild(hitPadRight);
+	
+	currentCombo = new createjs.Text('0', 'bold 20px Arial', '#A3FF24');
+	currentCombo.x = 200;
+	currentCombo.y = 20;
+	stage.addChild(currentCombo);
+	maxCombo = new createjs.Text('0', 'bold 20px Arial', '#A3FF24');
+	maxCombo.x = 800;
+	maxCombo.y = 20;
+	stage.addChild(maxCombo);
+
+	perfectCombo = new createjs.Text('Perfect', 'bold 50px Arial', '#A3FF24');
+	perfectCombo.x = 400;
+	perfectCombo.y = 200;
+	
+	goodCombo = new createjs.Text('Good', 'bold 50px Arial', '#A3FF24');
+	goodCombo.x = 400;
+	goodCombo.y = 200;
+	
+	missCombo = new createjs.Text('Miss', 'bold 50px Arial', '#A3FF24');
+	missCombo.x = 400;
+	missCombo.y = 200;
+	
 }
 function removePerfectCombo() {
 	stage.removeChild(perfectCombo);
