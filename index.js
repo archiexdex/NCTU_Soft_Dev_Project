@@ -50,12 +50,10 @@ function song() {
 	}
 }
 
-
-
 function init() {
 	stage = new createjs.Stage("demoCanvas");
-	stage.canvas.width = window.innerWidth;
-	stage.canvas.height = window.innerHeight;
+	stage.canvas.width = window.innerWidth-20;
+	stage.canvas.height = window.innerHeight-20;
 
 	stage.mouseEventsEnabled = true;
 
@@ -95,7 +93,7 @@ function addTitleView(){
 
 function tweenTitleView(){
     // Start Game
-    createjs.Tween.get(TitleView).to({y:-520}, 300).call(viewSetting);
+    createjs.Tween.get(TitleView).to({y:-700}, 300).call(viewSetting);
 }
 
 function getCircle(mode) {
@@ -127,9 +125,9 @@ function viewSetting() {
 	circleRight=getCircle("right");
 
 	stage.addChild(circleUp);
-	stage.addChild(circleDown);
-	stage.addChild(circleLeft);
-	stage.addChild(circleRight);
+	//stage.addChild(circleDown);
+	//stage.addChild(circleLeft);
+	//stage.addChild(circleRight);
 
 	createjs.Tween.get(circleUp, {loop: true})
 		.to({y: -100}, interval);
