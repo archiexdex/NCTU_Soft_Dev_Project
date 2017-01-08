@@ -1,5 +1,5 @@
 let stage;
-let currentCombo, maxCombo, missCombo, perfectCombo, goodCombo;
+let playerScore, completeRate, missCombo, perfectCombo, goodCombo;
 let hitPadUp, hitPadDown, hitPadLeft, hitPadRight;
 let circleUp, circleDown, circleLeft, circleRight;
 let circleRadius = 50, hitPadRadius = 60;
@@ -9,12 +9,17 @@ let interval = 1000;
 let list = [];
 let index = 0;
 
-var beatPoint = 0;
-var beat = 0;
-var measure = 1;
-var bpm = 150;
-var songLength = 91;
+var soundID0 = "Seasons of Asia";
 var songContent = [30,32,34,35,40,42,44,45,50,52,54,55,56,60,62,64,70,72,74,75,80,82,84,85,90,92,94,95,96,100,102,104,110,112,114,120,124,130,132,134,140,150,152,154,160,164,170,172,174,180,190,192,194,200,204,210,212,214,220,224,230,232,234,240,244,250,252,254,260,270,274,280,282,284,290,294,300,302,304,310,314,320,322,324,330,332,334,340,350,352,354,360,362,364,370,374,380,382,384,390,392,394,400,402,404,410,414,420,422,424,430,440,450,460,464,470,472,474,480,482,484,490,492,494,500,504,510,550,560,570,580,590,600,610,620,630,634,640,650,670,672,674,680,682,684,690,694,700,702,704,710,712,714,720,722,724,730,734,740,742,744,750,760,770,780,784,790,792,794,800,802,804,810,812,814,820,824,830,870,872,874,880,884,890,892,894,900,904,910];
+
+var totalHit = 0;
+//Final score page
+var finalScoreText;
+var finalScoreValue;
+var completeRateText;
+var completeRateValue;
+
+var worker = new Worker('worker.js');
 
 //Start page
 var bg;
@@ -29,36 +34,25 @@ var rank_name;
 var rank_list;
 var SelectView = new createjs.Container();
 
-
-function song() {
-	beatPoint++;
-	if(beatPoint==75) {	//beatPoint
-		beatPoint = 0;
-		beat++;
-		if(beat==8) {
-			beat = 0;
-			measure++;
-		}
-		console.log("measure: "+measure+"beat: "+beat);
-		if( (Math.floor(songContent[0]/10) == measure) && (songContent[0]%10 == beat) ) {	//show circle
-			songContent.shift();
-			console.log("inside");
-			console.log("measure: "+measure+"beat: "+beat);
-			console.log("inside");
-			stage.removeChild(circleUp);
-			circleUp = null;
-			circleUp = new createjs.Shape();
-			circleUp.graphics.beginFill("Crimson").drawCircle(0, 0, 50);
-			circleUp.x = center.x;
-			circleUp.y = center.y;
-			createjs.Tween.get(circleUp, {loop: false})
-	  .to({y: -100}, interval);
-	  stage.addChild(circleUp);
-		}
+worker.onmessage = function(e) {
+	if( e.data == "end" ) {
+		removeMainView();
+		addFinalScoreView();
+	}
+	else if ( e.data == "show" ) {
+		stage.removeChild(circleUp);
+		circleUp = null;
+		circleUp = new createjs.Shape();
+		circleUp.graphics.beginFill("Crimson").drawCircle(0, 0, 50);
+		circleUp.x = center.x;
+		circleUp.y = center.y;
+		createjs.Tween.get(circleUp).to({y: -100}, interval);
+		stage.addChild(circleUp);
 	}
 }
 
 function init() {
+	createjs.Sound.registerSound("Seasons_of_Asia.mp3", soundID0);
 	stage = new createjs.Stage("demoCanvas");
 	stage.canvas.width = window.innerWidth-20;
 	stage.canvas.height = window.innerHeight-20;
@@ -72,12 +66,28 @@ function init() {
 
 	stage.addChild(bg);
 
-	createjs.Ticker.setFPS(bpm*4);
+	createjs.Ticker.setFPS(60);
 	createjs.Ticker.addEventListener("tick", stage);
 	addTitleView();
 }
 
 // Function
+
+function addFinalScoreView() {
+	finalScoreText = new createjs.Text('Final Score', 'bold 50px Arial', '#0099CC');
+	finalScoreText.x = 300;
+	finalScoreText.y = 200;
+	finalScoreValue = new createjs.Text(playerScore.text, 'bold 50px Arial', '#0099CC');
+	finalScoreValue.x = 700;
+	finalScoreValue.y = 200;
+	completeRateText = new createjs.Text('Complete Rate', 'bold 50px Arial', '#0099CC');
+	completeRateText.x = 200;
+	completeRateText.y = 400;
+	completeRateValue = new createjs.Text(completeRate.text, 'bold 50px Arial', '#0099CC');
+	completeRateValue.x = 700;
+	completeRateValue.y = 400;
+	stage.addChild(finalScoreText, finalScoreValue, completeRateText, completeRateValue);
+}
 
 function addTitleView(){
 
@@ -101,7 +111,7 @@ function addTitleView(){
 function tweenTitleView(){
     // Start Game
     createjs.Tween.get(TitleView).to({y:-700}, 300).call(selectPage);
-		// createjs.Ticker.addEventListener("tick", song);
+	// createjs.Ticker.addEventListener("tick", song);
 }
 
 function selectPage(){
@@ -171,7 +181,7 @@ function selectPage(){
 	var song_2=song(2);
 	var song_3=song(3);
 
-	var song_0_text=song_text('Love Forever',0);
+	var song_0_text=song_text('太鼓の達人 『季曲 ～Seasons of Asia～』',0);
 	var song_1_text=song_text('One Dream',1);
 	var song_2_text=song_text('Lean on',2);
 	var song_3_text=song_text('Hellhold',3);
@@ -210,7 +220,7 @@ function selectPage(){
 	play.alpha=0.5;
 	play.graphics.beginFill("#99FFFF").drawCircle(window.innerWidth/2, window.innerHeight/2-120, 100);
 
-  var play_text = new createjs.Text('PLAY','bold 65px Arial','#FF0000');
+	var play_text = new createjs.Text('PLAY','bold 65px Arial','#FF0000');
 	play_text.x=window.innerWidth/2-play_text.getMeasuredWidth()/2;
 	play_text.y=window.innerHeight/2-120-play_text.getMeasuredHeight()/2;
 	play_text.shadow = new createjs.Shadow("#f44295", 0, 5, 10);
@@ -225,7 +235,8 @@ function selectPage(){
 function tweenSelecePage(){
     // Start Game
     createjs.Tween.get(SelectView).to({y:-1000}, 0).call(viewSetting);
-		createjs.Ticker.addEventListener("tick", song);
+	createjs.Sound.play(soundID0);
+	worker.postMessage("start");
 }
 
 function rankText(name,number){
@@ -285,6 +296,15 @@ function getCircle(mode) {
 	return tmp;
 }
 
+function removeMainView() {
+	stage.removeChild(hitPadUp);
+	stage.removeChild(hitPadDown);
+	stage.removeChild(hitPadLeft);
+	stage.removeChild(hitPadRight);
+	stage.removeChild(playerScore);
+	stage.removeChild(completeRate);
+}
+
 function viewSetting() {
 
 	circleUp=getCircle("up");
@@ -292,7 +312,7 @@ function viewSetting() {
 	circleLeft=getCircle("left");
 	circleRight=getCircle("right");
 
-	stage.addChild(circleUp);
+	//stage.addChild(circleUp);
 	//stage.addChild(circleDown);
 	//stage.addChild(circleLeft);
 	//stage.addChild(circleRight);
@@ -335,14 +355,14 @@ function viewSetting() {
 	hitPadRight.shadow = new createjs.Shadow("#f44295", 0, 5, 10);
 	stage.addChild(hitPadRight);
 
-	currentCombo = new createjs.Text('0', 'bold 20px Arial', '#A3FF24');
-	currentCombo.x = 200;
-	currentCombo.y = 20;
-	stage.addChild(currentCombo);
-	maxCombo = new createjs.Text('0', 'bold 20px Arial', '#A3FF24');
-	maxCombo.x = 800;
-	maxCombo.y = 20;
-	stage.addChild(maxCombo);
+	playerScore = new createjs.Text('0', 'bold 20px Arial', '#A3FF24');
+	playerScore.x = 200;
+	playerScore.y = 20;
+	stage.addChild(playerScore);
+	completeRate = new createjs.Text('0%', 'bold 20px Arial', '#A3FF24');
+	completeRate.x = 800;
+	completeRate.y = 20;
+	stage.addChild(completeRate);
 
 	perfectCombo = new createjs.Text('Perfect', 'bold 50px Arial', '#A3FF24');
 	perfectCombo.x = 400;
@@ -366,60 +386,62 @@ function removeGoodCombo() {
 function removeMissCombo() {
 	stage.removeChild(missCombo);
 }
-function updataScore() {
-	currentCombo.text = parseInt(currentCombo.text + 1);
-	if( parseInt(currentCombo.text) > parseInt(maxCombo.text) )
-		maxCombo.text = currentCombo.text;
+function updataScore(hit) {
+	if(hit=="perfect") {
+		playerScore.text = parseInt(playerScore.text + 3);
+	}
+	else if(hit=="good") {
+		playerScore.text = parseInt(playerScore.text + 2);
+	}
+	else if(hit=="normal") {
+		playerScore.text = parseInt(playerScore.text + 1);
+	}
+	totalHit++;
+	completeRate.text = Math.floor((totalHit/songContent.length)*10000)/100 + "%";
 }
 function comboEffect(circle, hitPad, coord) {
 	var perfect = 20;
 	var good = 40;
 	if(coord=="x") {
 		if(circle.x<=hitPad.x+perfect && circle.x>=hitPad.x-perfect) {
-			console.log("perfect");
 			stage.addChild(perfectCombo);
 			createjs.Tween.get(perfectCombo).wait(500).call( removePerfectCombo );
-			updataScore();
+			updataScore("perfect");
 			return true;
 		}
 		else if(circle.x<=hitPad.x+good && circle.x>=hitPad.x-good) {
-			console.log("good");
 			stage.addChild(goodCombo);
 			createjs.Tween.get(goodCombo).wait(500).call( removeGoodCombo );
-			updataScore();
+			updataScore("good");
 			return true;
 		}
 		else if(circle.x+circleRadius>=hitPad.x-hitPadRadius && circle.x-circleRadius<=hitPad.x+hitPadRadius) {	//normal
-			updataScore();
+			updataScore("normal");
 			return true;
 		}
 		else {	//miss
-			currentCombo.text = '0';
 			stage.addChild(missCombo);
 			createjs.Tween.get(missCombo).wait(500).call( removeMissCombo );
 		}
 	}
 	else if(coord=="y") {
 		if(circle.y<=hitPad.y+perfect && circle.y>=hitPad.y-perfect) {
-			console.log("perfect");
 			stage.addChild(perfectCombo);
 			createjs.Tween.get(perfectCombo).wait(500).call( removePerfectCombo );
-			updataScore();
+			updataScore("perfect");
 			return true;
 		}
 		else if(circle.y<=hitPad.y+good && circle.y>=hitPad.y-good) {
-			console.log("good");
 			stage.addChild(missCombo);
 			createjs.Tween.get(missCombo).wait(500).call( removeMissCombo );
-			updataScore();
+			updataScore("good");
 			return true;
 		}
 		else if(circle.y+circleRadius>=hitPad.y-hitPadRadius && circle.y-circleRadius<=hitPad.y+hitPadRadius) {	//normal
-			updataScore();
+			updataScore("normal");
 			return true;
 		}
 		else {	//miss
-			currentCombo.text = '0';
 			stage.addChild(goodCombo);
 			createjs.Tween.get(goodCombo).wait(500).call( removeGoodCombo );
 		}
