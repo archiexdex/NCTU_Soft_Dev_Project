@@ -9,9 +9,9 @@ let interval = 1000;
 let list = [];
 let index = 0;
 
-var soundID = [];
-var previewID = [];
+var song = [];
 var songContent = [30,32,34,35,40,42,44,45,50,52,54,55,56,60,62,64,70,72,74,75,80,82,84,85,90,92,94,95,96,100,102,104,110,112,114,120,124,130,132,134,140,150,152,154,160,164,170,172,174,180,190,192,194,200,204,210,212,214,220,224,230,232,234,240,244,250,252,254,260,270,274,280,282,284,290,294,300,302,304,310,314,320,322,324,330,332,334,340,350,352,354,360,362,364,370,374,380,382,384,390,392,394,400,402,404,410,414,420,422,424,430,440,450,460,464,470,472,474,480,482,484,490,492,494,500,504,510,550,560,570,580,590,600,610,620,630,634,640,650,670,672,674,680,682,684,690,694,700,702,704,710,712,714,720,722,724,730,734,740,742,744,750,760,770,780,784,790,792,794,800,802,804,810,812,814,820,824,830,870,872,874,880,884,890,892,894,900,904,910];
+var worker = new Worker('worker.js');
 
 var totalHit = 0;
 //Final score page
@@ -19,8 +19,6 @@ var finalScoreText;
 var finalScoreValue;
 var completeRateText;
 var completeRateValue;
-
-var worker = new Worker('worker.js');
 
 //Start page
 var bg;
@@ -36,17 +34,22 @@ var rank_list;
 var SelectView = new createjs.Container();
 
 class Song {
-	constructor(songNumber, songText) {
+	constructor(songNumber, songName, songSource, songPartName, songPartSource) {
 		this.songNumber = songNumber;
-		this.songText = songText;
+		this.songName = songName;
+		this.songSource = songSource;
+		this.songPartName = songPartName;
+		this.songPartSource = songPartSource;
+		createjs.Sound.registerSound(this.songSource, this.songName);
+		createjs.Sound.registerSound(this.songPartSource, this.songPartName);
 	}
 	draw(stage) {
 		var song_tmp = new createjs.Shape();
-		song_tmp.alpha=0.5;
-		song_tmp.graphics.beginFill("#FFCCFF").drawRect(window.innerWidth-260, 50+this.songNumber*100, 310 ,80);
-		var song_text_tmp = new createjs.Text(this.songText, '35px Arial', '#CC66CC');
-		song_text_tmp.x=window.innerWidth-240;
-		song_text_tmp.y=90-song_text_tmp.getMeasuredHeight()/2+this.songNumber*100;
+		song_tmp.alpha = 0.5;
+		song_tmp.graphics.beginFill("#FFCCFF").drawRect(window.innerWidth-260, 50 + this.songNumber*100, 310 ,80);
+		var song_text_tmp = new createjs.Text(this.songName, '35px Arial', '#CC66CC');
+		song_text_tmp.x = window.innerWidth-240;
+		song_text_tmp.y = 90-song_text_tmp.getMeasuredHeight()/2 + this.songNumber*100;
 		stage.addChild(song_tmp, song_text_tmp);
 		song_tmp.addEventListener("mouseover", function() {
 			createjs.Tween.get(song_tmp).to({x:-50}, 200);
@@ -54,7 +57,10 @@ class Song {
 		song_tmp.addEventListener("mouseout", function() {
 			createjs.Tween.get(song_tmp).to({x:0}, 200);
 		});
-		song_tmp.addEventListener("click", songClick(0));
+		song_tmp.on("click", function(event){
+			createjs.Sound.stop();
+            createjs.Sound.play(this.songPartName);
+        }, this);
 	}
 }
 
@@ -76,7 +82,7 @@ class Difficulty {
 			createjs.Tween.get(diff_tmp).to({y:-40}, 200);
 		});
 		diff_tmp.addEventListener("mouseout", function() {
-				createjs.Tween.get(diff_tmp).to({y:0}, 200);
+			createjs.Tween.get(diff_tmp).to({y:0}, 200);
 		});
 	}
 }
@@ -99,10 +105,11 @@ worker.onmessage = function(e) {
 }
 
 function init() {
-	soundID[0] = "Seasons of Asia";
-	previewID[0] = "Seasons of Asia Part";
-	createjs.Sound.registerSound("source/Seasons_of_Asia.mp3", soundID[0]);
-	createjs.Sound.registerSound("source/Seasons_of_Asia_Part.mp3", previewID[0]);
+	song[0] = new Song(0, "Seasons of Asia", "source/Seasons_of_Asia.mp3", "Seasons of Asia Part", "source/Seasons_of_Asia_Part.mp3");
+	song[1] = new Song(1, "One Dream", "source/Seasons_of_Asia.mp3", "Seasons of Asia Part", "source/Seasons_of_Asia_Part.mp3");
+	song[2] = new Song(2, "Lean on", "source/Seasons_of_Asia.mp3", "Seasons of Asia Part", "source/Seasons_of_Asia_Part.mp3");
+	song[3] = new Song(3, "Hellhold", "source/Seasons_of_Asia.mp3", "Seasons of Asia Part", "source/Seasons_of_Asia_Part.mp3");
+	
 	stage = new createjs.Stage("demoCanvas");
 	stage.canvas.width = window.innerWidth-20;
 	stage.canvas.height = window.innerHeight-20;
@@ -164,10 +171,6 @@ function tweenTitleView(){
 	// createjs.Ticker.addEventListener("tick", song);
 }
 
-function songClick(songID) {
-	createjs.Sound.play(previewID[songID]);
-}
-
 function selectPage(){
 	//rank rectangle and name
 	rank = new createjs.Shape();
@@ -201,14 +204,10 @@ function selectPage(){
 
 	//song select
 
-	var song_0 = new Song(0, "Seasons of Asia");
-	var song_1 = new Song(1, "One Dream");
-	var song_2 = new Song(2, "Lean on");
-	var song_3 = new Song(3, "Hellhold");
-	song_0.draw(stage);
-	song_1.draw(stage);
-	song_2.draw(stage);
-	song_3.draw(stage);
+	song[0].draw(stage);
+	song[1].draw(stage);
+	song[2].draw(stage);
+	song[3].draw(stage);
 
 	//Play button
 
@@ -220,7 +219,7 @@ function selectPage(){
 	play_text.x=window.innerWidth/2-play_text.getMeasuredWidth()/2;
 	play_text.y=window.innerHeight/2-120-play_text.getMeasuredHeight()/2;
 	play_text.shadow = new createjs.Shadow("#f44295", 0, 5, 10);
-	SelectView.addChild(play_text,play,diff_easy,diff_middle,diff_hard,diff_hell,diff_easy_text,diff_middle_text,diff_hard_text,diff_hell_text);
+	SelectView.addChild(play_text, play);
 
 	stage.addChild(SelectView);
 
@@ -231,7 +230,7 @@ function selectPage(){
 function tweenSelecePage(){
     // Start Game
     createjs.Tween.get(SelectView).to({y:-1000}, 0).call(viewSetting);
-	createjs.Sound.play(soundID[0]);
+	createjs.Sound.play(song[0].songName);
 	worker.postMessage("start");
 }
 
