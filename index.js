@@ -9,7 +9,8 @@ let interval = 1000;
 let list = [];
 let index = 0;
 
-var soundID0 = "Seasons of Asia";
+var soundID = [];
+var previewID = [];
 var songContent = [30,32,34,35,40,42,44,45,50,52,54,55,56,60,62,64,70,72,74,75,80,82,84,85,90,92,94,95,96,100,102,104,110,112,114,120,124,130,132,134,140,150,152,154,160,164,170,172,174,180,190,192,194,200,204,210,212,214,220,224,230,232,234,240,244,250,252,254,260,270,274,280,282,284,290,294,300,302,304,310,314,320,322,324,330,332,334,340,350,352,354,360,362,364,370,374,380,382,384,390,392,394,400,402,404,410,414,420,422,424,430,440,450,460,464,470,472,474,480,482,484,490,492,494,500,504,510,550,560,570,580,590,600,610,620,630,634,640,650,670,672,674,680,682,684,690,694,700,702,704,710,712,714,720,722,724,730,734,740,742,744,750,760,770,780,784,790,792,794,800,802,804,810,812,814,820,824,830,870,872,874,880,884,890,892,894,900,904,910];
 
 var totalHit = 0;
@@ -34,6 +35,52 @@ var rank_name;
 var rank_list;
 var SelectView = new createjs.Container();
 
+class Song {
+	constructor(songNumber, songText) {
+		this.songNumber = songNumber;
+		this.songText = songText;
+	}
+	draw(stage) {
+		var song_tmp = new createjs.Shape();
+		song_tmp.alpha=0.5;
+		song_tmp.graphics.beginFill("#FFCCFF").drawRect(window.innerWidth-260, 50+this.songNumber*100, 310 ,80);
+		var song_text_tmp = new createjs.Text(this.songText, '35px Arial', '#CC66CC');
+		song_text_tmp.x=window.innerWidth-240;
+		song_text_tmp.y=90-song_text_tmp.getMeasuredHeight()/2+this.songNumber*100;
+		stage.addChild(song_tmp, song_text_tmp);
+		song_tmp.addEventListener("mouseover", function() {
+			createjs.Tween.get(song_tmp).to({x:-50}, 200);
+		});
+		song_tmp.addEventListener("mouseout", function() {
+			createjs.Tween.get(song_tmp).to({x:0}, 200);
+		});
+		song_tmp.addEventListener("click", songClick(0));
+	}
+}
+
+class Difficulty {
+	constructor(diffNumber, diffText) {
+		this.diffNumber = diffNumber;
+		this.diffText = diffText;
+	}
+	draw(stage) {
+		var diff_tmp = new createjs.Shape();
+		diff_tmp.alpha=0.7;
+		diff_tmp.graphics.beginFill("#CCFFCC").drawRoundRectComplex(window.innerWidth/2-245+130*this.diffNumber, window.innerHeight-210, 100 ,250,45,45,0,0);
+		var diff_text_tmp = new createjs.Text(this.diffText, '35px Arial', '#CCCCCC');
+		diff_text_tmp.rotation = 270;
+		diff_text_tmp.x=window.innerWidth/2-195+130*this.diffNumber-diff_text_tmp.getMeasuredHeight()/2;
+		diff_text_tmp.y=window.innerHeight-50;
+		stage.addChild(diff_tmp, diff_text_tmp);
+		diff_tmp.addEventListener("mouseover", function() {
+			createjs.Tween.get(diff_tmp).to({y:-40}, 200);
+		});
+		diff_tmp.addEventListener("mouseout", function() {
+				createjs.Tween.get(diff_tmp).to({y:0}, 200);
+		});
+	}
+}
+
 worker.onmessage = function(e) {
 	if( e.data == "end" ) {
 		removeMainView();
@@ -52,7 +99,10 @@ worker.onmessage = function(e) {
 }
 
 function init() {
-	createjs.Sound.registerSound("Seasons_of_Asia.mp3", soundID0);
+	soundID[0] = "Seasons of Asia";
+	previewID[0] = "Seasons of Asia Part";
+	createjs.Sound.registerSound("source/Seasons_of_Asia.mp3", soundID[0]);
+	createjs.Sound.registerSound("source/Seasons_of_Asia_Part.mp3", previewID[0]);
 	stage = new createjs.Stage("demoCanvas");
 	stage.canvas.width = window.innerWidth-20;
 	stage.canvas.height = window.innerHeight-20;
@@ -60,19 +110,12 @@ function init() {
 	stage.mouseEventsEnabled = true;
 	stage.enableMouseOver();
 
-	var bg_width;
-	var bg_height;
 	bg = new createjs.Bitmap("bg.jpg");
-	var img = new Image();
-	img.onload = function() {
-	bg_width=this.width;
-	bg_height=this.height;
-	bg.scaleX=window.innerWidth/bg_width;
-	bg.scaleY=window.innerHeight/bg_height;
-	}
-	img.src = 'bg.jpg';
+	bg.scaleX=1.35;
+	bg.scaleY=1.2;
+
 	stage.addChild(bg);
-	
+
 	createjs.Ticker.setFPS(60);
 	createjs.Ticker.addEventListener("tick", stage);
 	addTitleView();
@@ -121,6 +164,10 @@ function tweenTitleView(){
 	// createjs.Ticker.addEventListener("tick", song);
 }
 
+function songClick(songID) {
+	createjs.Sound.play(previewID[songID]);
+}
+
 function selectPage(){
 	//rank rectangle and name
 	rank = new createjs.Shape();
@@ -143,83 +190,25 @@ function selectPage(){
 
 	//difficulty select
 
-	var diff_easy = diff(0);
-	var diff_middle = diff(1);
-	var diff_hard = diff(2);
-	var diff_hell = diff(3);
-
-	var diff_easy_text = diff_text('EASY',0);
-	var diff_middle_text = diff_text('MIDDLE',1);
-	var diff_hard_text = diff_text('HARD',2);
-	var diff_hell_text = diff_text('HELL',3);
-
-	diff_easy.addEventListener("mouseover", function() {
-    createjs.Tween.get(diff_easy).to({y:-40}, 200);
-		createjs.Tween.get(diff_middle).to({y:0}, 200);
-		createjs.Tween.get(diff_hard).to({y:0}, 200);
-		createjs.Tween.get(diff_hell).to({y:0}, 200);
-});
-
-	diff_middle.addEventListener("mouseover", function() {
-    createjs.Tween.get(diff_easy).to({y:0}, 200);
-		createjs.Tween.get(diff_middle).to({y:-40}, 200);
-		createjs.Tween.get(diff_hard).to({y:0}, 200);
-		createjs.Tween.get(diff_hell).to({y:0}, 200);
-});
-
-	diff_hard.addEventListener("mouseover", function() {
-    createjs.Tween.get(diff_easy).to({y:0}, 200);
-		createjs.Tween.get(diff_middle).to({y:0}, 200);
-		createjs.Tween.get(diff_hard).to({y:-40}, 200);
-		createjs.Tween.get(diff_hell).to({y:0}, 200);
-});
-
-	diff_hell.addEventListener("mouseover", function() {
-	    createjs.Tween.get(diff_easy).to({y:0}, 200);
-			createjs.Tween.get(diff_middle).to({y:0}, 200);
-			createjs.Tween.get(diff_hard).to({y:0}, 200);
-			createjs.Tween.get(diff_hell).to({y:-40}, 200);
-	});
+	var diff_easy = new Difficulty(0, 'EASY');
+	var diff_middle = new Difficulty(1, 'MIDDLE');
+	var diff_hard = new Difficulty(2, 'HARD');
+	var diff_hell = new Difficulty(3, 'HELL');
+	diff_easy.draw(stage);
+	diff_middle.draw(stage);
+	diff_hard.draw(stage);
+	diff_hell.draw(stage);
 
 	//song select
 
-	var song_0=song(0);
-	var song_1=song(1);
-	var song_2=song(2);
-	var song_3=song(3);
-
-	var song_0_text=song_text('太鼓の達人 『季曲 ～Seasons of Asia～』',0);
-	var song_1_text=song_text('One Dream',1);
-	var song_2_text=song_text('Lean on',2);
-	var song_3_text=song_text('Hellhold',3);
-
-	song_0.addEventListener("mouseover", function() {
-    createjs.Tween.get(song_0).to({x:-50}, 200);
-		createjs.Tween.get(song_1).to({x:0}, 200);
-		createjs.Tween.get(song_2).to({x:0}, 200);
-		createjs.Tween.get(song_3).to({x:0}, 200);
-});
-
-	song_1.addEventListener("mouseover", function() {
-    createjs.Tween.get(song_0).to({x:0}, 200);
-		createjs.Tween.get(song_1).to({x:-50}, 200);
-		createjs.Tween.get(song_2).to({x:0}, 200);
-		createjs.Tween.get(song_3).to({x:0}, 200);
-});
-
-	song_2.addEventListener("mouseover", function() {
-    createjs.Tween.get(song_0).to({x:0}, 200);
-		createjs.Tween.get(song_1).to({x:0}, 200);
-		createjs.Tween.get(song_2).to({x:-50}, 200);
-		createjs.Tween.get(song_3).to({x:0}, 200);
-});
-
-	song_3.addEventListener("mouseover", function() {
-	    createjs.Tween.get(song_0).to({x:0}, 200);
-			createjs.Tween.get(song_1).to({x:0}, 200);
-			createjs.Tween.get(song_2).to({x:0}, 200);
-			createjs.Tween.get(song_3).to({x:-50}, 200);
-	});
+	var song_0 = new Song(0, "Seasons of Asia");
+	var song_1 = new Song(1, "One Dream");
+	var song_2 = new Song(2, "Lean on");
+	var song_3 = new Song(3, "Hellhold");
+	song_0.draw(stage);
+	song_1.draw(stage);
+	song_2.draw(stage);
+	song_3.draw(stage);
 
 	//Play button
 
@@ -231,7 +220,7 @@ function selectPage(){
 	play_text.x=window.innerWidth/2-play_text.getMeasuredWidth()/2;
 	play_text.y=window.innerHeight/2-120-play_text.getMeasuredHeight()/2;
 	play_text.shadow = new createjs.Shadow("#f44295", 0, 5, 10);
-	SelectView.addChild(play_text,play,diff_easy,diff_middle,diff_hard,diff_hell,diff_easy_text,diff_middle_text,diff_hard_text,diff_hell_text,song_0,song_1,song_2,song_3,song_0_text,song_1_text,song_2_text,song_3_text);
+	SelectView.addChild(play_text,play,diff_easy,diff_middle,diff_hard,diff_hell,diff_easy_text,diff_middle_text,diff_hard_text,diff_hell_text);
 
 	stage.addChild(SelectView);
 
@@ -242,7 +231,7 @@ function selectPage(){
 function tweenSelecePage(){
     // Start Game
     createjs.Tween.get(SelectView).to({y:-1000}, 0).call(viewSetting);
-	createjs.Sound.play(soundID0);
+	createjs.Sound.play(soundID[0]);
 	worker.postMessage("start");
 }
 
@@ -251,35 +240,6 @@ function rankText(name,number){
 	rank_tmp.x = 120;
 	rank_tmp.y = 110 + 50*number;
 	return rank_tmp;
-}
-
-function diff(number){
-	var diff_tmp = new createjs.Shape();
-	diff_tmp.alpha=0.7;
-	diff_tmp.graphics.beginFill("#CCFFCC").drawRoundRectComplex(window.innerWidth/2-245+130*number, window.innerHeight-210, 100 ,250,45,45,0,0);
-	return diff_tmp;
-}
-
-function diff_text(name,number){
-	var diff_text_tmp = new createjs.Text(name, '35px Arial', '#CCCCCC');
-	diff_text_tmp.rotation = 270;
-	diff_text_tmp.x=window.innerWidth/2-195+130*number-diff_text_tmp.getMeasuredHeight()/2;
-	diff_text_tmp.y=window.innerHeight-50;
-	return diff_text_tmp;
-}
-
-function song(number){
-	var song_tmp = new createjs.Shape();
-	song_tmp.alpha=0.5;
-	song_tmp.graphics.beginFill("#FFCCFF").drawRect(window.innerWidth-260, 50+number*100, 310 ,80);
-	return song_tmp;
-}
-
-function song_text(name,number){
-	var song_text_tmp = new createjs.Text(name, '35px Arial', '#CC66CC');
-	song_text_tmp.x=window.innerWidth-240;
-	song_text_tmp.y=90-song_text_tmp.getMeasuredHeight()/2+number*100;
-	return song_text_tmp;
 }
 
 function getCircle(mode) {
