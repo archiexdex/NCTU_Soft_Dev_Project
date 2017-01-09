@@ -106,7 +106,7 @@ worker.onmessage = function(e) {
 
 function init() {
 	song[0] = new Song(0, "Seasons of Asia", "source/Seasons_of_Asia.mp3", "Seasons of Asia Part", "source/Seasons_of_Asia_Part.mp3");
-	song[1] = new Song(1, "One Dream", "source/Seasons_of_Asia.mp3", "Seasons of Asia Part", "source/Seasons_of_Asia_Part.mp3");
+	song[1] = new Song(1, "LOVE戦!!", "source/LOVE_War.mp3", "LOVE戦!! Part", "source/LOVE_War_Part.mp3");
 	song[2] = new Song(2, "Lean on", "source/Seasons_of_Asia.mp3", "Seasons of Asia Part", "source/Seasons_of_Asia_Part.mp3");
 	song[3] = new Song(3, "Hellhold", "source/Seasons_of_Asia.mp3", "Seasons of Asia Part", "source/Seasons_of_Asia_Part.mp3");
 	
@@ -229,6 +229,7 @@ function selectPage(){
 
 function tweenSelecePage(){
     // Start Game
+	createjs.Sound.stop();
     createjs.Tween.get(SelectView).to({y:-1000}, 0).call(viewSetting);
 	createjs.Sound.play(song[0].songName);
 	worker.postMessage("start");
