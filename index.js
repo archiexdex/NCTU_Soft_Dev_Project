@@ -6,8 +6,6 @@ let circleRadius = 50, hitPadRadius = 60;
 let heldKeys = {};
 let center = { 'x' : 500, 'y' : 300};
 let interval = 1000;
-let list = [];
-let index = 0;
 
 var song = [];
 var worker = new Worker('worker.js');
@@ -108,6 +106,26 @@ class Difficulty {
 			createjs.Tween.get(diff_tmp).to({y:0}, 200);
 		});
 		return [diff_tmp, diff_text_tmp]
+	}
+}
+
+class HitPad {
+	constructor(x, y) {
+		var tmp = new createjs.Shape();
+		tmp.graphics.beginFill("Pink").drawCircle(0, 0, 60);
+		tmp.x = x;
+		tmp.y = y;
+		tmp.shadow = new createjs.Shadow("#f44295", 0, 5, 10);
+		return tmp;
+	}
+}
+
+class ComboEffect {
+	constructor(comboText) {
+		var tmp = new createjs.Text(comboText, 'bold 50px Arial', '#A3FF24');
+		tmp.x = 400;
+		tmp.y = 200;
+		return tmp;
 	}
 }
 
@@ -264,10 +282,11 @@ function selectPage(){
 	play_text.y=window.innerHeight/2-120-play_text.getMeasuredHeight()/2;
 	play_text.shadow = new createjs.Shadow("#f44295", 0, 5, 10);
 	SelectView.addChild(play_text, play);
-	for(var i=0;i<diff.length;i++) {
+	var i;
+	for(i=0;i<diff.length;i++) {
 		SelectView.addChild(diff[i][0], diff[i][1])
 	}
-	for(var i=0;i<songObj.length;i++) {
+	for(i=0;i<songObj.length;i++) {
 		SelectView.addChild(songObj[i][0], songObj[i][1]);
 	}
 	stage.addChild(SelectView);
@@ -320,46 +339,12 @@ function viewSetting() {
 	circleDown=getCircle("down");
 	circleLeft=getCircle("left");
 	circleRight=getCircle("right");
-/*
-	stage.addChild(circleUp);
-	stage.addChild(circleDown);
-	stage.addChild(circleLeft);
-	stage.addChild(circleRight);
 
-	createjs.Tween.get(circleUp, {loop: true})
-		.to({y: -100}, interval);
-	createjs.Tween.get(circleDown, {loop: true})
-		.to({y: 700}, interval);
-	createjs.Tween.get(circleLeft, {loop: true})
-		.to({x: -100}, interval);
-	createjs.Tween.get(circleRight, {loop: true})
-		.to({x: 1100}, interval);
-*/
-
-	hitPadUp = new createjs.Shape();
-	hitPadUp.graphics.beginFill("Pink").drawCircle(0, 0, 60);
-	hitPadUp.x = 500;
-	hitPadUp.y = 70;
-	hitPadUp.shadow = new createjs.Shadow("#f44295", 0, 5, 10);
-
-	hitPadDown = new createjs.Shape();
-	hitPadDown.graphics.beginFill("Pink").drawCircle(0, 0, 60);
-	hitPadDown.x = 500;
-	hitPadDown.y = 530;
-	hitPadDown.shadow = new createjs.Shadow("#f44295", 0, 5, 10);
-
-	hitPadLeft = new createjs.Shape();
-	hitPadLeft.graphics.beginFill("Pink").drawCircle(0, 0, 60);
-	hitPadLeft.x = 70;
-	hitPadLeft.y = 300;
-	hitPadLeft.shadow = new createjs.Shadow("#f44295", 0, 5, 10);
-
-	hitPadRight = new createjs.Shape();
-	hitPadRight.graphics.beginFill("Pink").drawCircle(0, 0, 60);
-	hitPadRight.x = 930;
-	hitPadRight.y = 300;
-	hitPadRight.shadow = new createjs.Shadow("#f44295", 0, 5, 10);
-
+	hitPadUp = new HitPad(500, 70);
+	hitPadDown = new HitPad(500, 530);
+	hitPadLeft = new HitPad(70, 300);
+	hitPadRight = new HitPad(930, 300);
+	
 	playerScore = new createjs.Text('0', 'bold 20px Arial', '#A3FF24');
 	playerScore.x = 200;
 	playerScore.y = 20;
@@ -368,17 +353,9 @@ function viewSetting() {
 	completeRate.x = 800;
 	completeRate.y = 20;
 
-	perfectCombo = new createjs.Text('Perfect', 'bold 50px Arial', '#A3FF24');
-	perfectCombo.x = 400;
-	perfectCombo.y = 200;
-
-	goodCombo = new createjs.Text('Good', 'bold 50px Arial', '#A3FF24');
-	goodCombo.x = 400;
-	goodCombo.y = 200;
-
-	missCombo = new createjs.Text('Miss', 'bold 50px Arial', '#A3FF24');
-	missCombo.x = 400;
-	missCombo.y = 200;
+	perfectCombo = new ComboEffect('Perfect');
+	goodCombo = new ComboEffect('Good');
+	missCombo = new ComboEffect('Miss');
 	
 	MainView.addChild(hitPadUp, hitPadDown, hitPadLeft, hitPadRight, playerScore, completeRate);
 	stage.addChild(MainView);
@@ -458,7 +435,6 @@ function comboEffect(circle, hitPad, coord) {
 
 // Key Setting
 document.onkeydown = function(e) {
-	//console.log(heldKeys[e.keyCode]);
 	if (heldKeys[e.keyCode] == true) {
 		return;
 	}
@@ -504,7 +480,6 @@ document.onkeydown = function(e) {
 };
 
 document.onkeyup = function(e) {
-	//console.log(heldKeys[e.keyCode]);
 	delete heldKeys[e.keyCode];
 	switch(e.keyCode) {
 		case 37:
