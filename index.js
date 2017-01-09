@@ -148,10 +148,17 @@ function init() {
 	stage.mouseEventsEnabled = true;
 	stage.enableMouseOver();
 
+	var bg_width;
+	var bg_height;
 	bg = new createjs.Bitmap("bg.jpg");
-	bg.scaleX=1.35;
-	bg.scaleY=1.2;
-
+	var img = new Image();
+	img.onload = function() {
+		bg_width=this.width;
+		bg_height=this.height;
+		bg.scaleX=window.innerWidth/bg_width;
+		bg.scaleY=window.innerHeight/bg_height;
+	}
+	img.src = 'bg.jpg';
 	stage.addChild(bg);
 
 	createjs.Ticker.setFPS(60);
@@ -179,8 +186,8 @@ function addFinalScoreView() {
 	stage.addChild(FinalView);
 	
 	playAgainButton.on("click", function(event){
-		//stage.removeChild(FinalView);
-		//selectPage();
+		stage.removeChild(FinalView);
+		location.reload();
     }, this);
 
 }
