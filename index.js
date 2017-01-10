@@ -4,7 +4,7 @@ let hitPadUp, hitPadDown, hitPadLeft, hitPadRight;
 let circleUp, circleDown, circleLeft, circleRight;
 let circleRadius = 50, hitPadRadius = 60;
 let heldKeys = {};
-let center = { 'x' : 500, 'y' : 300};
+let center = { 'x' : window.innerWidth/2, 'y' : window.innerHeight/2};
 let interval = 1000;
 
 var song = [];
@@ -123,8 +123,8 @@ class HitPad {
 class ComboEffect {
 	constructor(comboText) {
 		var tmp = new createjs.Text(comboText, 'bold 50px Arial', '#A3FF24');
-		tmp.x = 400;
-		tmp.y = 200;
+		tmp.x = window.innerWidth/2-tmp.getMeasuredWidth()/2;
+		tmp.y = window.innerHeight/2-tmp.getMeasuredHeight()/2;
 		return tmp;
 	}
 }
@@ -148,17 +148,17 @@ worker.onmessage = function(e) {
 }
 
 function init() {
-	
+
 	readTextFile("source/Seasons_of_Asia.txt");
 	song[0] = new Song(0, "Seasons of Asia", "source/Seasons_of_Asia.mp3", "Seasons of Asia Part", "source/Seasons_of_Asia_Part.mp3", songContent);
 	readTextFile("source/LOVE_War.txt");
 	song[1] = new Song(1, "LOVE戦!!", "source/LOVE_War.mp3", "LOVE戦!! Part", "source/LOVE_War_Part.mp3", songContent);
-	
+
 	song[2] = new Song(2, "Lean on", "source/Seasons_of_Asia.mp3", "Seasons of Asia Part", "source/Seasons_of_Asia_Part.mp3", songContent);
-	
+
 	song[3] = new Song(3, "Hellhold", "source/Seasons_of_Asia.mp3", "Seasons of Asia Part", "source/Seasons_of_Asia_Part.mp3", songContent);
-	
-	
+
+
 	stage = new createjs.Stage("demoCanvas");
 	stage.canvas.width = window.innerWidth-20;
 	stage.canvas.height = window.innerHeight-20;
@@ -186,23 +186,23 @@ function init() {
 
 function addFinalScoreView() {
 	finalScoreText = new createjs.Text('Final Score', 'bold 50px Arial', '#0099CC');
-	finalScoreText.x = 300;
+	finalScoreText.x = window.innerWidth/2- finalScoreText.getMeasuredWidth();
 	finalScoreText.y = 100;
 	finalScoreValue = new createjs.Text(playerScore.text, 'bold 50px Arial', '#0099CC');
-	finalScoreValue.x = 700;
+	finalScoreValue.x = window.innerWidth/2	+100;
 	finalScoreValue.y = 100;
 	completeRateText = new createjs.Text('Complete Rate', 'bold 50px Arial', '#0099CC');
-	completeRateText.x = 200;
+	completeRateText.x = window.innerWidth/2- completeRateText.getMeasuredWidth();
 	completeRateText.y = 300;
 	completeRateValue = new createjs.Text(completeRate.text, 'bold 50px Arial', '#0099CC');
-	completeRateValue.x = 700;
+	completeRateValue.x = window.innerWidth/2	+100;
 	completeRateValue.y = 300;
-	playAgainButton = new createjs.Text('Play Again', 'bold 50px Arial', '#0099CC');
-	playAgainButton.x = 400;
+	playAgainButton = new createjs.Text('Play Again', 'bold 50px Arial', '#0066CC');
+	playAgainButton.x = window.innerWidth/2- playAgainButton.getMeasuredWidth()/2;
 	playAgainButton.y = 500;
 	FinalView.addChild(finalScoreText, finalScoreValue, completeRateText, completeRateValue, playAgainButton);
 	stage.addChild(FinalView);
-	
+
 	playAgainButton.on("click", function(event){
 		stage.removeChild(FinalView);
 		location.reload();
@@ -302,7 +302,7 @@ function tweenSelecePage(){
 	stage.removeChild(SelectView);
 	createjs.Sound.play(song[songSelected].songName);
 	worker.postMessage(song[songSelected].songContent);
-	
+
 }
 
 function rankText(name,number){
@@ -334,29 +334,29 @@ function getCircle(mode) {
 }
 
 function viewSetting() {
-	
+
 	circleUp=getCircle("up");
 	circleDown=getCircle("down");
 	circleLeft=getCircle("left");
 	circleRight=getCircle("right");
 
-	hitPadUp = new HitPad(500, 70);
-	hitPadDown = new HitPad(500, 530);
-	hitPadLeft = new HitPad(70, 300);
-	hitPadRight = new HitPad(930, 300);
-	
+	hitPadUp = new HitPad(window.innerWidth/2, 75);
+	hitPadDown = new HitPad(window.innerWidth/2, window.innerHeight-95);
+	hitPadLeft = new HitPad(75, window.innerHeight/2);
+	hitPadRight = new HitPad(window.innerWidth-95, window.innerHeight/2);
+
 	playerScore = new createjs.Text('0', 'bold 20px Arial', '#A3FF24');
-	playerScore.x = 200;
+	playerScore.x = window.innerWidth/2- playerScore.getMeasuredWidth() -300;
 	playerScore.y = 20;
 
 	completeRate = new createjs.Text('0%', 'bold 20px Arial', '#A3FF24');
-	completeRate.x = 800;
+	completeRate.x = window.innerWidth/2+300;
 	completeRate.y = 20;
 
 	perfectCombo = new ComboEffect('Perfect');
 	goodCombo = new ComboEffect('Good');
 	missCombo = new ComboEffect('Miss');
-	
+
 	MainView.addChild(hitPadUp, hitPadDown, hitPadLeft, hitPadRight, playerScore, completeRate);
 	stage.addChild(MainView);
 
@@ -382,9 +382,9 @@ function updataScore(hit) {
 	completeRate.text = Math.floor((totalHit/songContent[2].split(",").length)*10000)/100 + "%";
 }
 function comboEffect(circle, hitPad, coord) {
-	
+
 	removeComboEffect();
-	
+
 	var perfect = 20;
 	var good = 40;
 	if(coord=="x") {
