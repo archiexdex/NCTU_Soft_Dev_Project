@@ -62,8 +62,8 @@ class Song {
 		song_tmp.on("click", function(event){
 			songSelected = this.songNumber;
 			createjs.Sound.stop();
-            createjs.Sound.play(this.songPartName);
-        }, this);
+			createjs.Sound.play(this.songPartName);
+		}, this);
 		return [song_tmp, song_text_tmp];
 	}
 }
@@ -206,7 +206,7 @@ function addFinalScoreView() {
 	playAgainButton.on("click", function(event){
 		stage.removeChild(FinalView);
 		location.reload();
-    }, this);
+	}, this);
 
 }
 
@@ -227,8 +227,8 @@ function addTitleView(){
 	stage.addChild(TitleView);
 
 	start_button.on("click", function(event){
-		 createjs.Tween.get(TitleView).to({y:-700}, 300).call(selectPage);
-    }, this);
+		createjs.Tween.get(TitleView).to({y:-700}, 300).call(selectPage);
+	}, this);
 }
 
 function selectPage(){
@@ -361,15 +361,13 @@ function viewSetting() {
 	stage.addChild(MainView);
 
 }
-function removePerfectCombo() {
+
+function removeComboEffect() {
 	stage.removeChild(perfectCombo);
-}
-function removeGoodCombo() {
 	stage.removeChild(goodCombo);
-}
-function removeMissCombo() {
 	stage.removeChild(missCombo);
 }
+
 function updataScore(hit) {
 	if(hit=="perfect") {
 		playerScore.text = parseInt(playerScore.text + 3);
@@ -384,18 +382,21 @@ function updataScore(hit) {
 	completeRate.text = Math.floor((totalHit/songContent[2].split(",").length)*10000)/100 + "%";
 }
 function comboEffect(circle, hitPad, coord) {
+	
+	removeComboEffect();
+	
 	var perfect = 20;
 	var good = 40;
 	if(coord=="x") {
 		if(circle.x<=hitPad.x+perfect && circle.x>=hitPad.x-perfect) {
 			stage.addChild(perfectCombo);
-			createjs.Tween.get(perfectCombo).wait(500).call( removePerfectCombo );
+			createjs.Tween.get(perfectCombo).wait(500).call( removeComboEffect );
 			updataScore("perfect");
 			return true;
 		}
 		else if(circle.x<=hitPad.x+good && circle.x>=hitPad.x-good) {
 			stage.addChild(goodCombo);
-			createjs.Tween.get(goodCombo).wait(500).call( removeGoodCombo );
+			createjs.Tween.get(goodCombo).wait(500).call( removeComboEffect );
 			updataScore("good");
 			return true;
 		}
@@ -405,19 +406,19 @@ function comboEffect(circle, hitPad, coord) {
 		}
 		else {	//miss
 			stage.addChild(missCombo);
-			createjs.Tween.get(missCombo).wait(500).call( removeMissCombo );
+			createjs.Tween.get(missCombo).wait(500).call( removeComboEffect );
 		}
 	}
 	else if(coord=="y") {
 		if(circle.y<=hitPad.y+perfect && circle.y>=hitPad.y-perfect) {
 			stage.addChild(perfectCombo);
-			createjs.Tween.get(perfectCombo).wait(500).call( removePerfectCombo );
+			createjs.Tween.get(perfectCombo).wait(500).call( removeComboEffect );
 			updataScore("perfect");
 			return true;
 		}
 		else if(circle.y<=hitPad.y+good && circle.y>=hitPad.y-good) {
 			stage.addChild(missCombo);
-			createjs.Tween.get(missCombo).wait(500).call( removeMissCombo );
+			createjs.Tween.get(missCombo).wait(500).call( removeComboEffect );
 			updataScore("good");
 			return true;
 		}
@@ -427,7 +428,7 @@ function comboEffect(circle, hitPad, coord) {
 		}
 		else {	//miss
 			stage.addChild(goodCombo);
-			createjs.Tween.get(goodCombo).wait(500).call( removeGoodCombo );
+			createjs.Tween.get(goodCombo).wait(500).call( removeComboEffect );
 		}
 	}
 	return false;
