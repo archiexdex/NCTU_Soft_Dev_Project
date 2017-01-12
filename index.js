@@ -53,12 +53,7 @@ class Song {
 		var song_text_tmp = new createjs.Text(this.songName, '35px Arial', '#CC66CC');
 		song_text_tmp.x = window.innerWidth-240;
 		song_text_tmp.y = 90-song_text_tmp.getMeasuredHeight()/2 + this.songNumber*100;
-		song_tmp.addEventListener("mouseover", function() {
-			createjs.Tween.get(song_tmp).to({x:-50}, 200);
-		});
-		song_tmp.addEventListener("mouseout", function() {
-			createjs.Tween.get(song_tmp).to({x:0}, 200);
-		});
+
 		song_tmp.on("click", function(event){
 			songSelected = this.songNumber;
 			createjs.Sound.stop();
@@ -99,12 +94,6 @@ class Difficulty {
 		diff_text_tmp.x=window.innerWidth/2-195+130*this.diffNumber-diff_text_tmp.getMeasuredHeight()/2;
 		diff_text_tmp.y=window.innerHeight-50;
 
-		diff_tmp.addEventListener("mouseover", function() {
-			createjs.Tween.get(diff_tmp).to({y:-40}, 200);
-		});
-		diff_tmp.addEventListener("mouseout", function() {
-			createjs.Tween.get(diff_tmp).to({y:0}, 200);
-		});
 		return [diff_tmp, diff_text_tmp]
 	}
 }
@@ -168,7 +157,7 @@ function init() {
 
 	var bg_width;
 	var bg_height;
-	bg = new createjs.Bitmap("bg.jpg");
+	bg = new createjs.Bitmap("source/bg.jpg");
 	var img = new Image();
 	img.onload = function() {
 		bg_width=this.width;
@@ -176,7 +165,7 @@ function init() {
 		bg.scaleX=window.innerWidth/bg_width;
 		bg.scaleY=window.innerHeight/bg_height;
 	}
-	img.src = 'bg.jpg';
+	img.src = 'source/bg.jpg';
 	stage.addChild(bg);
 
 	createjs.Ticker.setFPS(60);
@@ -263,6 +252,37 @@ function selectPage(){
 	diff[2] = diff_hard.create();
 	diff[3] = diff_hell.create();
 
+	diff[0][0].addEventListener("mouseover", function() {
+		createjs.Tween.get(diff[0][0]).to({y:-40}, 200);
+		for(var i=1;i<4;i++){
+		createjs.Tween.get(diff[i][0]).to({y:0}, 200);
+		}
+	});
+
+	diff[1][0].addEventListener("mouseover", function() {
+		createjs.Tween.get(diff[1][0]).to({y:-40}, 200);
+		createjs.Tween.get(diff[0][0]).to({y:0}, 200);
+		for(var i=2;i<4;i++){
+		createjs.Tween.get(diff[i][0]).to({y:0}, 200);
+		}
+	});
+
+	diff[2][0].addEventListener("mouseover", function() {
+		createjs.Tween.get(diff[2][0]).to({y:-40}, 200);
+		for(var i=0;i<2;i++){
+		createjs.Tween.get(diff[i][0]).to({y:0}, 200);
+		}
+		createjs.Tween.get(diff[3][0]).to({y:0}, 200);
+	});
+
+	diff[3][0].addEventListener("mouseover", function() {
+		createjs.Tween.get(diff[3][0]).to({y:-40}, 200);
+		for(var i=0;i<3;i++){
+		createjs.Tween.get(diff[i][0]).to({y:0}, 200);
+		}
+	});
+
+
 	//song select
 
 	var songObj = [];
@@ -270,6 +290,70 @@ function selectPage(){
 	songObj[1] = song[1].create();
 	songObj[2] = song[2].create();
 	songObj[3] = song[3].create();
+
+	songObj[0][0].addEventListener("mouseover", function() {
+		createjs.Tween.get(songObj[0][0]).to({x:-50}, 200);
+		if(songObj[0][1].getMeasuredWidth()>240){
+			var text_move = songObj[0][1].getMeasuredWidth()-210;
+			createjs.Tween.get(songObj[0][1]).to({x:window.innerWidth-240-text_move}, 200);
+		}
+		else{
+			createjs.Tween.get(songObj[0][1]).to({x:window.innerWidth-290}, 200);
+		}
+		for(var i=1;i<4;i++){
+			createjs.Tween.get(songObj[i][0]).to({x:0}, 200);
+			createjs.Tween.get(songObj[i][1]).to({x:window.innerWidth-240}, 200);
+		}
+	});
+
+	songObj[1][0].addEventListener("mouseover", function() {
+		createjs.Tween.get(songObj[1][0]).to({x:-50}, 200);
+		if(songObj[1][1].getMeasuredWidth()>240){
+			var text_move = songObj[1][1].getMeasuredWidth()-210;
+			createjs.Tween.get(songObj[1][1]).to({x:window.innerWidth-240-text_move}, 200);
+		}
+		else{
+			createjs.Tween.get(songObj[1][1]).to({x:window.innerWidth-290}, 200);
+		}
+		createjs.Tween.get(songObj[0][0]).to({x:0}, 200);
+		createjs.Tween.get(songObj[0][1]).to({x:window.innerWidth-240}, 200);
+		for(var i=2;i<4;i++){
+		createjs.Tween.get(songObj[i][0]).to({x:0}, 200);
+		createjs.Tween.get(songObj[i][1]).to({x:window.innerWidth-240}, 200);
+	}
+	});
+
+	songObj[2][0].addEventListener("mouseover", function() {
+		createjs.Tween.get(songObj[2][0]).to({x:-50}, 200);
+		if(songObj[2][1].getMeasuredWidth()>240){
+			var text_move = songObj[2][1].getMeasuredWidth()-210;
+			createjs.Tween.get(songObj[2][1]).to({x:window.innerWidth-240-text_move}, 200);
+		}
+		else{
+			createjs.Tween.get(songObj[2][1]).to({x:window.innerWidth-290}, 200);
+		}
+		createjs.Tween.get(songObj[3][0]).to({x:0}, 200);
+		createjs.Tween.get(songObj[3][1]).to({x:window.innerWidth-240}, 200);
+		for(var i=0;i<2;i++){
+		createjs.Tween.get(songObj[i][0]).to({x:0}, 200);
+		createjs.Tween.get(songObj[i][1]).to({x:window.innerWidth-240}, 200);
+	}
+	});
+
+	songObj[3][0].addEventListener("mouseover", function() {
+		createjs.Tween.get(songObj[3][0]).to({x:-50}, 200);
+		if(songObj[3][1].getMeasuredWidth()>240){
+			var text_move = songObj[3][1].getMeasuredWidth()-210;
+			createjs.Tween.get(songObj[3][1]).to({x:window.innerWidth-240-text_move}, 200);
+		}
+		else{
+			createjs.Tween.get(songObj[3][1]).to({x:window.innerWidth-290}, 200);
+		}
+		for(var i=0;i<3;i++){
+		createjs.Tween.get(songObj[i][0]).to({x:0}, 200);
+		createjs.Tween.get(songObj[i][1]).to({x:window.innerWidth-240}, 200);
+	}
+	});
 
 	//Play button
 
