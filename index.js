@@ -124,30 +124,44 @@ worker.onmessage = function(e) {
 		stage.removeChild(MainView);
 		addFinalScoreView();
 	}
-	else if ( e.data == "show" ) {
-		stage.removeChild(circleUp);
-		circleUp = null;
-		circleUp = new createjs.Shape();
-		circleUp.graphics.beginFill("Crimson").drawCircle(0, 0, 50);
-		circleUp.x = center.x;
-		circleUp.y = center.y;
-		createjs.Tween.get(circleUp).to({y: -100}, interval);
-		stage.addChild(circleUp);
+	else {
+		switch(e.data) {
+		case "0":
+			console.log("up");
+			stage.removeChild(circleUp);
+			circleUp = null;
+			circleUp = new createjs.Shape();
+			circleUp.graphics.beginFill("Crimson").drawCircle(0, 0, 50);
+			circleUp.x = center.x;
+			circleUp.y = center.y;
+			createjs.Tween.get(circleUp).to({y: -100}, interval);
+			stage.addChild(circleUp);
+			break;
+		case "1":
+			console.log("down");
+			break;
+		case "2":
+			console.log("left");
+			break;
+		case "3":
+			console.log("right");
+		}
+		
 	}
 }
 
 function init() {
-
+	
 	readTextFile("source/Seasons_of_Asia.txt");
 	song[0] = new Song(0, "Seasons of Asia", "source/Seasons_of_Asia.mp3", "Seasons of Asia Part", "source/Seasons_of_Asia_Part.mp3", songContent);
 	readTextFile("source/LOVE_War.txt");
 	song[1] = new Song(1, "LOVE戦!!", "source/LOVE_War.mp3", "LOVE戦!! Part", "source/LOVE_War_Part.mp3", songContent);
-
+	
 	song[2] = new Song(2, "Lean on", "source/Seasons_of_Asia.mp3", "Seasons of Asia Part", "source/Seasons_of_Asia_Part.mp3", songContent);
-
+	
 	song[3] = new Song(3, "Hellhold", "source/Seasons_of_Asia.mp3", "Seasons of Asia Part", "source/Seasons_of_Asia_Part.mp3", songContent);
-
-
+	
+	
 	stage = new createjs.Stage("demoCanvas");
 	stage.canvas.width = window.innerWidth-20;
 	stage.canvas.height = window.innerHeight-20;
@@ -184,14 +198,14 @@ function addFinalScoreView() {
 	completeRateText.x = window.innerWidth/2- completeRateText.getMeasuredWidth();
 	completeRateText.y = 300;
 	completeRateValue = new createjs.Text(completeRate.text, 'bold 50px Arial', '#0099CC');
-	completeRateValue.x = window.innerWidth/2	+100;
+	completeRateValue.x = window.innerWidth/2+100;
 	completeRateValue.y = 300;
 	playAgainButton = new createjs.Text('Play Again', 'bold 50px Arial', '#0066CC');
 	playAgainButton.x = window.innerWidth/2- playAgainButton.getMeasuredWidth()/2;
 	playAgainButton.y = 500;
 	FinalView.addChild(finalScoreText, finalScoreValue, completeRateText, completeRateValue, playAgainButton);
 	stage.addChild(FinalView);
-
+	
 	playAgainButton.on("click", function(event){
 		stage.removeChild(FinalView);
 		location.reload();
@@ -386,7 +400,7 @@ function tweenSelecePage(){
 	stage.removeChild(SelectView);
 	createjs.Sound.play(song[songSelected].songName);
 	worker.postMessage(song[songSelected].songContent);
-
+	
 }
 
 function rankText(name,number){
@@ -418,7 +432,7 @@ function getCircle(mode) {
 }
 
 function viewSetting() {
-
+	
 	circleUp=getCircle("up");
 	circleDown=getCircle("down");
 	circleLeft=getCircle("left");
@@ -428,7 +442,7 @@ function viewSetting() {
 	hitPadDown = new HitPad(window.innerWidth/2, window.innerHeight-95);
 	hitPadLeft = new HitPad(75, window.innerHeight/2);
 	hitPadRight = new HitPad(window.innerWidth-95, window.innerHeight/2);
-
+	
 	playerScore = new createjs.Text('0', 'bold 20px Arial', '#A3FF24');
 	playerScore.x = window.innerWidth/2- playerScore.getMeasuredWidth() -300;
 	playerScore.y = 20;
@@ -440,7 +454,7 @@ function viewSetting() {
 	perfectCombo = new ComboEffect('Perfect');
 	goodCombo = new ComboEffect('Good');
 	missCombo = new ComboEffect('Miss');
-
+	
 	MainView.addChild(hitPadUp, hitPadDown, hitPadLeft, hitPadRight, playerScore, completeRate);
 	stage.addChild(MainView);
 
@@ -452,7 +466,7 @@ function removeComboEffect() {
 	stage.removeChild(missCombo);
 }
 
-function updataScore(hit) {
+function updateScore(hit) {
 	if(hit=="perfect") {
 		playerScore.text = parseInt(playerScore.text + 3);
 	}
@@ -466,26 +480,26 @@ function updataScore(hit) {
 	completeRate.text = Math.floor((totalHit/songContent[2].split(",").length)*10000)/100 + "%";
 }
 function comboEffect(circle, hitPad, coord) {
-
+	
 	removeComboEffect();
-
+	
 	var perfect = 20;
 	var good = 40;
 	if(coord=="x") {
 		if(circle.x<=hitPad.x+perfect && circle.x>=hitPad.x-perfect) {
 			stage.addChild(perfectCombo);
 			createjs.Tween.get(perfectCombo).wait(500).call( removeComboEffect );
-			updataScore("perfect");
+			updateScore("perfect");
 			return true;
 		}
 		else if(circle.x<=hitPad.x+good && circle.x>=hitPad.x-good) {
 			stage.addChild(goodCombo);
 			createjs.Tween.get(goodCombo).wait(500).call( removeComboEffect );
-			updataScore("good");
+			updateScore("good");
 			return true;
 		}
 		else if(circle.x+circleRadius>=hitPad.x-hitPadRadius && circle.x-circleRadius<=hitPad.x+hitPadRadius) {	//normal
-			updataScore("normal");
+			updateScore("normal");
 			return true;
 		}
 		else {	//miss
@@ -497,17 +511,17 @@ function comboEffect(circle, hitPad, coord) {
 		if(circle.y<=hitPad.y+perfect && circle.y>=hitPad.y-perfect) {
 			stage.addChild(perfectCombo);
 			createjs.Tween.get(perfectCombo).wait(500).call( removeComboEffect );
-			updataScore("perfect");
+			updateScore("perfect");
 			return true;
 		}
 		else if(circle.y<=hitPad.y+good && circle.y>=hitPad.y-good) {
 			stage.addChild(missCombo);
 			createjs.Tween.get(missCombo).wait(500).call( removeComboEffect );
-			updataScore("good");
+			updateScore("good");
 			return true;
 		}
 		else if(circle.y+circleRadius>=hitPad.y-hitPadRadius && circle.y-circleRadius<=hitPad.y+hitPadRadius) {	//normal
-			updataScore("normal");
+			updateScore("normal");
 			return true;
 		}
 		else {	//miss
