@@ -1,5 +1,6 @@
 let stage;
 let playerScore, completeRate, missCombo, perfectCombo, goodCombo;
+// let GM = new GameManager('Circle.js');
 let hitPadList = [];
 // let hitPadUp, hitPadDown, hitPadLeft, hitPadRight;
 let circleWay = [];
@@ -16,6 +17,7 @@ var songContent;
 var MainView = new createjs.Container();
 
 var totalHit = 0;
+
 //Final score page
 var finalScoreText;
 var finalScoreValue;
@@ -37,33 +39,7 @@ var rank_name;
 var rank_list;
 var SelectView = new createjs.Container();
 
-class Song {
-	constructor(songNumber, songName, songSource, songPartName, songPartSource, songContent) {
-		this.songNumber = songNumber;
-		this.songName = songName;
-		this.songSource = songSource;
-		this.songPartName = songPartName;
-		this.songPartSource = songPartSource;
-		createjs.Sound.registerSound(this.songSource, this.songName);
-		createjs.Sound.registerSound(this.songPartSource, this.songPartName);
-		this.songContent = songContent;
-	}
-	create() {
-		var song_tmp = new createjs.Shape();
-		song_tmp.alpha = 0.5;
-		song_tmp.graphics.beginFill("#FFCCFF").drawRect(window.innerWidth-260, 50 + this.songNumber*100, 310 ,80);
-		var song_text_tmp = new createjs.Text(this.songName, '35px Arial', '#CC66CC');
-		song_text_tmp.x = window.innerWidth-240;
-		song_text_tmp.y = 90-song_text_tmp.getMeasuredHeight()/2 + this.songNumber*100;
 
-		song_tmp.on("click", function(event){
-			songSelected = this.songNumber;
-			createjs.Sound.stop();
-			createjs.Sound.play(this.songPartName);
-		}, this);
-		return [song_tmp, song_text_tmp];
-	}
-}
 
 function readTextFile(file) {
 	var rawFile = new XMLHttpRequest();
@@ -80,44 +56,6 @@ function readTextFile(file) {
 		}
 	}
 	rawFile.send(null);
-}
-
-class Difficulty {
-	constructor(diffNumber, diffText) {
-		this.diffNumber = diffNumber;
-		this.diffText = diffText;
-	}
-	create() {
-		var diff_tmp = new createjs.Shape();
-		diff_tmp.alpha=0.7;
-		diff_tmp.graphics.beginFill("#CCFFCC").drawRoundRectComplex(window.innerWidth/2-245+130*this.diffNumber, window.innerHeight-210, 100 ,250,45,45,0,0);
-		var diff_text_tmp = new createjs.Text(this.diffText, '35px Arial', '#CCCCCC');
-		diff_text_tmp.rotation = 270;
-		diff_text_tmp.x=window.innerWidth/2-195+130*this.diffNumber-diff_text_tmp.getMeasuredHeight()/2;
-		diff_text_tmp.y=window.innerHeight-50;
-
-		return [diff_tmp, diff_text_tmp]
-	}
-}
-
-class HitPad {
-	constructor(x, y) {
-		var tmp = new createjs.Shape();
-		tmp.graphics.beginFill("Pink").drawCircle(0, 0, 60);
-		tmp.x = x;
-		tmp.y = y;
-		tmp.shadow = new createjs.Shadow("#f44295", 0, 5, 10);
-		return tmp;
-	}
-}
-
-class ComboEffect {
-	constructor(comboText) {
-		var tmp = new createjs.Text(comboText, 'bold 50px Arial', '#A3FF24');
-		tmp.x = window.innerWidth/2-tmp.getMeasuredWidth()/2;
-		tmp.y = window.innerHeight/2-tmp.getMeasuredHeight()/2;
-		return tmp;
-	}
 }
 
 worker.onmessage = function(e) {
