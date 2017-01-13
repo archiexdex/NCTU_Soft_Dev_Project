@@ -80,8 +80,8 @@ worker.onmessage = function(e) {
 			tmp = new createjs.Shape();
 			tmp.graphics.beginFill("Crimson").drawCircle(0, 0, 50);
 			tmp.x = center.x;
-			tmp.y = center.y;
-			createjs.Tween.get(tmp).to({y: -100}, interval);
+			tmp.y = center.y;console.log(window.innerHeight/2);console.log("@@@@");
+			createjs.Tween.get(tmp).to({y: center.y - window.innerHeight/2 - 100}, interval);
 			stage.addChild(tmp);
 			node = { circle: tmp, mode:1};
 			queue.push(node);
@@ -100,7 +100,7 @@ worker.onmessage = function(e) {
 			tmp.graphics.beginFill("Yellow").drawCircle(0, 0, 50);
 			tmp.x = center.x;
 			tmp.y = center.y;
-			createjs.Tween.get(tmp).to({y: 100}, interval);
+			createjs.Tween.get(tmp).to({y: center.y + window.innerHeight/2 + 100 }, interval);
 			stage.addChild(tmp);
 			node = { circle: tmp, mode:3};
 			queue.push(node);
@@ -112,7 +112,7 @@ worker.onmessage = function(e) {
 			tmp.graphics.beginFill("Green").drawCircle(0, 0, 50);
 			tmp.x = center.x;
 			tmp.y = center.y;
-			createjs.Tween.get(tmp).to({x: -100}, interval);
+			createjs.Tween.get(tmp).to({x: center.x - window.innerWidth/2 - 100}, interval);
 			stage.addChild(tmp);
 			node = { circle: tmp, mode:0};
 			queue.push(node);
@@ -123,7 +123,7 @@ worker.onmessage = function(e) {
 			tmp.graphics.beginFill("Blue").drawCircle(0, 0, 50);
 			tmp.x = center.x;
 			tmp.y = center.y;
-			createjs.Tween.get(tmp).to({x: 100}, interval);
+			createjs.Tween.get(tmp).to({x: center.x + window.innerWidth/2 + 100}, interval);
 			stage.addChild(tmp);
 			node = { circle: tmp, mode:2};
 			queue.push(node);
