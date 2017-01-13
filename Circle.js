@@ -24,19 +24,20 @@ class GameManager {
         return hitPadList;
     }
     push(mode) {
+      var tmp;
         switch (mode) {
             case "left":
-    			let tmp = { x: 0, y:0, r:50, mode:0};
+    			       tmp = { x: 0, y:0, r:50, mode:0};
     			break;
             case "up":
-                let tmp = { x: 0, y:0, r:50, mode:1};
+                tmp = { x: 0, y:0, r:50, mode:1};
     			// tmp.graphics.beginFill("Crimson").drawCircle(0, 0, 50);
     			break;
             case "right":
-                let tmp = { x: 0, y:0, r:50, mode:2};
+                tmp = { x: 0, y:0, r:50, mode:2};
                 break;
             case "down":
-    			let tmp = { x: 0, y:0, r:50, mode:3};
+    			tmp = { x: 0, y:0, r:50, mode:3};
     			break;
     	}
         que.push(tmp);

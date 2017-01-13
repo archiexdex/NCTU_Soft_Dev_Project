@@ -2,6 +2,17 @@
 ## What is Musix  
 Musix is a simple rhythm game written in javascript.  
 
+## Getting Started
+Open index.html in a web browser(Chrome recommended) with a web server.
+
 ## How to play  
-  - When you click the start, a selecting page will show up, you can chose which song to play and how hard the game is.  
+  - After you click the start button, a selecting page will show up. You can choose which song to play and how hard the game is in this page.
   - In the main game scene, 4 hit pad corresponded to 4 different directions button on your keyboard. You have to press those keys when a circle come to the hit pad, the more precise you hit, the higher score you will get!
+
+## Built with
+  - Creatjs -- A suite of modular libraries and tools which work together or independently to enable rich interactive content on open web technologies via HTML5.
+
+##Authors
+  - 賴奕融
+  - 楊信之
+  - 吳斌
