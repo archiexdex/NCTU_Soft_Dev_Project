@@ -10,7 +10,7 @@ Open index.html in a web browser(Chrome recommended) with a web server.
   - In the main game scene, 4 hit pad corresponded to 4 different directions button on your keyboard. You have to press those keys when a circle come to the hit pad, the more precise you hit, the higher score you will get!
 
 ## Built with
-  - Creatjs -- A suite of modular libraries and tools which work together or independently to enable rich interactive content on open web technologies via HTML5.
+  - [Creatjs](http://www.createjs.com) -- A suite of modular libraries and tools which work together or independently to enable rich interactive content on open web technologies via HTML5.
 
 ##Authors
   - 賴奕融
