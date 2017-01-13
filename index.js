@@ -1,6 +1,8 @@
 let stage;
 let playerScore, completeRate, missCombo, perfectCombo, goodCombo;
-let hitPadUp, hitPadDown, hitPadLeft, hitPadRight;
+let hitPadList = [];
+// let hitPadUp, hitPadDown, hitPadLeft, hitPadRight;
+let circleWay = [];
 let circleUp, circleDown, circleLeft, circleRight;
 let circleRadius = 50, hitPadRadius = 60;
 let heldKeys = {};
@@ -340,10 +342,15 @@ function viewSetting() {
 	circleLeft=getCircle("left");
 	circleRight=getCircle("right");
 
-	hitPadUp = new HitPad(window.innerWidth/2, 75);
-	hitPadDown = new HitPad(window.innerWidth/2, window.innerHeight-95);
-	hitPadLeft = new HitPad(75, window.innerHeight/2);
-	hitPadRight = new HitPad(window.innerWidth-95, window.innerHeight/2);
+	hitPadList[0] = new HitPad(75, window.innerHeight/2);
+	hitPadList[1] = new HitPad(window.innerWidth/2, 75);
+	hitPadList[2] = new HitPad(window.innerWidth-95, window.innerHeight/2);
+	hitPadList[3] = new HitPad(window.innerWidth/2, window.innerHeight-95);
+
+	// hitPadUp = new HitPad(window.innerWidth/2, 75);
+	// hitPadDown = new HitPad(window.innerWidth/2, window.innerHeight-95);
+	// hitPadLeft = new HitPad(75, window.innerHeight/2);
+	// hitPadRight = new HitPad(window.innerWidth-95, window.innerHeight/2);
 
 	playerScore = new createjs.Text('0', 'bold 20px Arial', '#A3FF24');
 	playerScore.x = window.innerWidth/2- playerScore.getMeasuredWidth() -300;
@@ -357,7 +364,10 @@ function viewSetting() {
 	goodCombo = new ComboEffect('Good');
 	missCombo = new ComboEffect('Miss');
 
-	MainView.addChild(hitPadUp, hitPadDown, hitPadLeft, hitPadRight, playerScore, completeRate);
+	MainView.addChild(playerScore, completeRate);
+	for (var i = 0; i < hitPadList.length; i++) {
+		MainView.addChild(hitPadList[i]);
+	}
 	stage.addChild(MainView);
 
 }
@@ -440,20 +450,30 @@ document.onkeydown = function(e) {
 		return;
 	}
 	heldKeys[e.keyCode] = true;
+	let ptr = e.keyCode - 37;
+	hitPadList[ptr].shadow = null;
+	if ( ptr % 2 ) {
+		comboEffect(circleUp, hitPadList[ptr], "y");
+	}
+	else {
+		comboEffect(circleLeft, hitPadList[ptr], "x")
+	}
 	switch(e.keyCode) {
 		case 37:
-			console.log("left");
-			hitPadLeft.shadow = null;
-			comboEffect(circleLeft, hitPadLeft, "x")
+			// console.log("left");
+			// hitPadList[0].shadow = null;
+			// comboEffect(circleLeft, hitPadList[0], "x")
 			/*if( comboEffect(circleLeft, hitPadLeft, "x") ) {
 				stage.removeChild(circleLeft);
 				circleLeft = null;
 			}*/
 			break;
 		case 38:
-			console.log("up");
-			hitPadUp.shadow = null;
-			comboEffect(circleUp, hitPadUp, "y");
+			// console.log("up");
+			// hitPadList[1].shadow = null;
+			// comboEffect(circleUp, hitPadList[1], "y");
+			// hitPadUp.shadow = null;
+			// comboEffect(circleUp, hitPadUp, "y");
 			/*if( comboEffect(circleUp, hitPadUp, "y") ) {
 				stage.removeChild(circleUp);
 				circleUp = null;
@@ -461,8 +481,8 @@ document.onkeydown = function(e) {
 			break;
 		case 39:
 			console.log("right");
-			hitPadRight.shadow = null;
-			comboEffect(circleRight, hitPadRight, "x");
+			hitPadList[2].shadow = null;
+			comboEffect(circleRight, hitPadList[2], "x");
 			/*if( comboEffect(circleRight, hitPadRight, "x") ) {
 				stage.removeChild(circleRight);
 				circleRight = null;
@@ -470,8 +490,8 @@ document.onkeydown = function(e) {
 			break;
 		case 40:
 			console.log("down");
-			hitPadDown.shadow = null;
-			comboEffect(circleDown, hitPadDown, "y");
+			hitPadList[3].shadow = null;
+			comboEffect(circleDown, hitPadList[3], "y");
 			/*if( comboEffect(circleDown, hitPadDown, "y") ) {
 				stage.removeChild(circleDown);
 				circleDown = null;
@@ -484,15 +504,15 @@ document.onkeyup = function(e) {
 	delete heldKeys[e.keyCode];
 	switch(e.keyCode) {
 		case 37:
-			hitPadLeft.shadow = new createjs.Shadow("#f44295", 0, 5, 10);
+			hitPadList[0].shadow = new createjs.Shadow("#f44295", 0, 5, 10);
 			break;
 		case 38:
-			hitPadUp.shadow = new createjs.Shadow("#f44295", 0, 5, 10);
+			hitPadList[1].shadow = new createjs.Shadow("#f44295", 0, 5, 10);
 			break;
 		case 39:
-			hitPadRight.shadow = new createjs.Shadow("#f44295", 0, 5, 10);
+			hitPadList[2].shadow = new createjs.Shadow("#f44295", 0, 5, 10);
 			break;
 		case 40:
-			hitPadDown.shadow = new createjs.Shadow("#f44295", 0, 5, 10);
+			hitPadList[3].shadow = new createjs.Shadow("#f44295", 0, 5, 10);
 	}
 };
