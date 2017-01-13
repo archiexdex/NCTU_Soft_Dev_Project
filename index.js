@@ -55,12 +55,7 @@ class Song {
 		var song_text_tmp = new createjs.Text(this.songName, '35px Arial', '#CC66CC');
 		song_text_tmp.x = window.innerWidth-240;
 		song_text_tmp.y = 90-song_text_tmp.getMeasuredHeight()/2 + this.songNumber*100;
-		song_tmp.addEventListener("mouseover", function() {
-			createjs.Tween.get(song_tmp).to({x:-50}, 200);
-		});
-		song_tmp.addEventListener("mouseout", function() {
-			createjs.Tween.get(song_tmp).to({x:0}, 200);
-		});
+
 		song_tmp.on("click", function(event){
 			songSelected = this.songNumber;
 			createjs.Sound.stop();
@@ -101,12 +96,6 @@ class Difficulty {
 		diff_text_tmp.x=window.innerWidth/2-195+130*this.diffNumber-diff_text_tmp.getMeasuredHeight()/2;
 		diff_text_tmp.y=window.innerHeight-50;
 
-		diff_tmp.addEventListener("mouseover", function() {
-			createjs.Tween.get(diff_tmp).to({y:-40}, 200);
-		});
-		diff_tmp.addEventListener("mouseout", function() {
-			createjs.Tween.get(diff_tmp).to({y:0}, 200);
-		});
 		return [diff_tmp, diff_text_tmp]
 	}
 }
@@ -137,15 +126,29 @@ worker.onmessage = function(e) {
 		stage.removeChild(MainView);
 		addFinalScoreView();
 	}
-	else if ( e.data == "show" ) {
-		stage.removeChild(circleUp);
-		circleUp = null;
-		circleUp = new createjs.Shape();
-		circleUp.graphics.beginFill("Crimson").drawCircle(0, 0, 50);
-		circleUp.x = center.x;
-		circleUp.y = center.y;
-		createjs.Tween.get(circleUp).to({y: -100}, interval);
-		stage.addChild(circleUp);
+	else {
+		switch(e.data) {
+		case "0":
+			console.log("up");
+			stage.removeChild(circleUp);
+			circleUp = null;
+			circleUp = new createjs.Shape();
+			circleUp.graphics.beginFill("Crimson").drawCircle(0, 0, 50);
+			circleUp.x = center.x;
+			circleUp.y = center.y;
+			createjs.Tween.get(circleUp).to({y: -100}, interval);
+			stage.addChild(circleUp);
+			break;
+		case "1":
+			console.log("down");
+			break;
+		case "2":
+			console.log("left");
+			break;
+		case "3":
+			console.log("right");
+		}
+
 	}
 }
 
@@ -155,8 +158,8 @@ function init() {
 	song[0] = new Song(0, "Seasons of Asia", "source/Seasons_of_Asia.mp3", "Seasons of Asia Part", "source/Seasons_of_Asia_Part.mp3", songContent);
 	readTextFile("source/LOVE_War.txt");
 	song[1] = new Song(1, "LOVE戦!!", "source/LOVE_War.mp3", "LOVE戦!! Part", "source/LOVE_War_Part.mp3", songContent);
-
-	song[2] = new Song(2, "Lean on", "source/Seasons_of_Asia.mp3", "Seasons of Asia Part", "source/Seasons_of_Asia_Part.mp3", songContent);
+	readTextFile("source/Natsumatsuri.txt");
+	song[2] = new Song(2, "夏祭り", "source/Natsumatsuri.mp3", "Natsumatsuri Part", "source/Natsumatsuri_Part.mp3", songContent);
 
 	song[3] = new Song(3, "Hellhold", "source/Seasons_of_Asia.mp3", "Seasons of Asia Part", "source/Seasons_of_Asia_Part.mp3", songContent);
 
@@ -170,7 +173,7 @@ function init() {
 
 	var bg_width;
 	var bg_height;
-	bg = new createjs.Bitmap("bg.jpg");
+	bg = new createjs.Bitmap("source/bg.jpg");
 	var img = new Image();
 	img.onload = function() {
 		bg_width=this.width;
@@ -178,7 +181,7 @@ function init() {
 		bg.scaleX=window.innerWidth/bg_width;
 		bg.scaleY=window.innerHeight/bg_height;
 	}
-	img.src = 'bg.jpg';
+	img.src = 'source/bg.jpg';
 	stage.addChild(bg);
 
 	createjs.Ticker.setFPS(60);
@@ -197,7 +200,7 @@ function addFinalScoreView() {
 	completeRateText.x = window.innerWidth/2- completeRateText.getMeasuredWidth();
 	completeRateText.y = 300;
 	completeRateValue = new createjs.Text(completeRate.text, 'bold 50px Arial', '#0099CC');
-	completeRateValue.x = window.innerWidth/2	+100;
+	completeRateValue.x = window.innerWidth/2+100;
 	completeRateValue.y = 300;
 	playAgainButton = new createjs.Text('Play Again', 'bold 50px Arial', '#0066CC');
 	playAgainButton.x = window.innerWidth/2- playAgainButton.getMeasuredWidth()/2;
@@ -265,6 +268,37 @@ function selectPage(){
 	diff[2] = diff_hard.create();
 	diff[3] = diff_hell.create();
 
+	diff[0][0].addEventListener("mouseover", function() {
+		createjs.Tween.get(diff[0][0]).to({y:-40}, 200);
+		for(var i=1;i<4;i++){
+		createjs.Tween.get(diff[i][0]).to({y:0}, 200);
+		}
+	});
+
+	diff[1][0].addEventListener("mouseover", function() {
+		createjs.Tween.get(diff[1][0]).to({y:-40}, 200);
+		createjs.Tween.get(diff[0][0]).to({y:0}, 200);
+		for(var i=2;i<4;i++){
+		createjs.Tween.get(diff[i][0]).to({y:0}, 200);
+		}
+	});
+
+	diff[2][0].addEventListener("mouseover", function() {
+		createjs.Tween.get(diff[2][0]).to({y:-40}, 200);
+		for(var i=0;i<2;i++){
+		createjs.Tween.get(diff[i][0]).to({y:0}, 200);
+		}
+		createjs.Tween.get(diff[3][0]).to({y:0}, 200);
+	});
+
+	diff[3][0].addEventListener("mouseover", function() {
+		createjs.Tween.get(diff[3][0]).to({y:-40}, 200);
+		for(var i=0;i<3;i++){
+		createjs.Tween.get(diff[i][0]).to({y:0}, 200);
+		}
+	});
+
+
 	//song select
 
 	var songObj = [];
@@ -272,6 +306,70 @@ function selectPage(){
 	songObj[1] = song[1].create();
 	songObj[2] = song[2].create();
 	songObj[3] = song[3].create();
+
+	songObj[0][0].addEventListener("mouseover", function() {
+		createjs.Tween.get(songObj[0][0]).to({x:-50}, 200);
+		if(songObj[0][1].getMeasuredWidth()>240){
+			var text_move = songObj[0][1].getMeasuredWidth()-210;
+			createjs.Tween.get(songObj[0][1]).to({x:window.innerWidth-240-text_move}, 200);
+		}
+		else{
+			createjs.Tween.get(songObj[0][1]).to({x:window.innerWidth-290}, 200);
+		}
+		for(var i=1;i<4;i++){
+			createjs.Tween.get(songObj[i][0]).to({x:0}, 200);
+			createjs.Tween.get(songObj[i][1]).to({x:window.innerWidth-240}, 200);
+		}
+	});
+
+	songObj[1][0].addEventListener("mouseover", function() {
+		createjs.Tween.get(songObj[1][0]).to({x:-50}, 200);
+		if(songObj[1][1].getMeasuredWidth()>240){
+			var text_move = songObj[1][1].getMeasuredWidth()-210;
+			createjs.Tween.get(songObj[1][1]).to({x:window.innerWidth-240-text_move}, 200);
+		}
+		else{
+			createjs.Tween.get(songObj[1][1]).to({x:window.innerWidth-290}, 200);
+		}
+		createjs.Tween.get(songObj[0][0]).to({x:0}, 200);
+		createjs.Tween.get(songObj[0][1]).to({x:window.innerWidth-240}, 200);
+		for(var i=2;i<4;i++){
+		createjs.Tween.get(songObj[i][0]).to({x:0}, 200);
+		createjs.Tween.get(songObj[i][1]).to({x:window.innerWidth-240}, 200);
+	}
+	});
+
+	songObj[2][0].addEventListener("mouseover", function() {
+		createjs.Tween.get(songObj[2][0]).to({x:-50}, 200);
+		if(songObj[2][1].getMeasuredWidth()>240){
+			var text_move = songObj[2][1].getMeasuredWidth()-210;
+			createjs.Tween.get(songObj[2][1]).to({x:window.innerWidth-240-text_move}, 200);
+		}
+		else{
+			createjs.Tween.get(songObj[2][1]).to({x:window.innerWidth-290}, 200);
+		}
+		createjs.Tween.get(songObj[3][0]).to({x:0}, 200);
+		createjs.Tween.get(songObj[3][1]).to({x:window.innerWidth-240}, 200);
+		for(var i=0;i<2;i++){
+		createjs.Tween.get(songObj[i][0]).to({x:0}, 200);
+		createjs.Tween.get(songObj[i][1]).to({x:window.innerWidth-240}, 200);
+	}
+	});
+
+	songObj[3][0].addEventListener("mouseover", function() {
+		createjs.Tween.get(songObj[3][0]).to({x:-50}, 200);
+		if(songObj[3][1].getMeasuredWidth()>240){
+			var text_move = songObj[3][1].getMeasuredWidth()-210;
+			createjs.Tween.get(songObj[3][1]).to({x:window.innerWidth-240-text_move}, 200);
+		}
+		else{
+			createjs.Tween.get(songObj[3][1]).to({x:window.innerWidth-290}, 200);
+		}
+		for(var i=0;i<3;i++){
+		createjs.Tween.get(songObj[i][0]).to({x:0}, 200);
+		createjs.Tween.get(songObj[i][1]).to({x:window.innerWidth-240}, 200);
+	}
+	});
 
 	//Play button
 
@@ -342,6 +440,7 @@ function viewSetting() {
 	circleLeft=getCircle("left");
 	circleRight=getCircle("right");
 
+
 	hitPadList[0] = new HitPad(75, window.innerHeight/2);
 	hitPadList[1] = new HitPad(window.innerWidth/2, 75);
 	hitPadList[2] = new HitPad(window.innerWidth-95, window.innerHeight/2);
@@ -368,6 +467,7 @@ function viewSetting() {
 	for (var i = 0; i < hitPadList.length; i++) {
 		MainView.addChild(hitPadList[i]);
 	}
+
 	stage.addChild(MainView);
 
 }
@@ -378,7 +478,7 @@ function removeComboEffect() {
 	stage.removeChild(missCombo);
 }
 
-function updataScore(hit) {
+function updateScore(hit) {
 	if(hit=="perfect") {
 		playerScore.text = parseInt(playerScore.text + 3);
 	}
@@ -401,17 +501,17 @@ function comboEffect(circle, hitPad, coord) {
 		if(circle.x<=hitPad.x+perfect && circle.x>=hitPad.x-perfect) {
 			stage.addChild(perfectCombo);
 			createjs.Tween.get(perfectCombo).wait(500).call( removeComboEffect );
-			updataScore("perfect");
+			updateScore("perfect");
 			return true;
 		}
 		else if(circle.x<=hitPad.x+good && circle.x>=hitPad.x-good) {
 			stage.addChild(goodCombo);
 			createjs.Tween.get(goodCombo).wait(500).call( removeComboEffect );
-			updataScore("good");
+			updateScore("good");
 			return true;
 		}
 		else if(circle.x+circleRadius>=hitPad.x-hitPadRadius && circle.x-circleRadius<=hitPad.x+hitPadRadius) {	//normal
-			updataScore("normal");
+			updateScore("normal");
 			return true;
 		}
 		else {	//miss
@@ -423,17 +523,17 @@ function comboEffect(circle, hitPad, coord) {
 		if(circle.y<=hitPad.y+perfect && circle.y>=hitPad.y-perfect) {
 			stage.addChild(perfectCombo);
 			createjs.Tween.get(perfectCombo).wait(500).call( removeComboEffect );
-			updataScore("perfect");
+			updateScore("perfect");
 			return true;
 		}
 		else if(circle.y<=hitPad.y+good && circle.y>=hitPad.y-good) {
 			stage.addChild(missCombo);
 			createjs.Tween.get(missCombo).wait(500).call( removeComboEffect );
-			updataScore("good");
+			updateScore("good");
 			return true;
 		}
 		else if(circle.y+circleRadius>=hitPad.y-hitPadRadius && circle.y-circleRadius<=hitPad.y+hitPadRadius) {	//normal
-			updataScore("normal");
+			updateScore("normal");
 			return true;
 		}
 		else {	//miss
