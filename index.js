@@ -60,6 +60,17 @@ function readTextFile(file) {
 	rawFile.send(null);
 }
 
+setInterval("checkQueue()", 100);
+function checkQueue() {
+	console.log("QQQQQQQWQWQWQWQ");
+	for (let i = 0 ; i < queue.length ; i++) {
+		if ( checkEdge(queue[i]) ) {
+			stage.removeChild(queue[i]);
+			queue.shift();
+		}
+	}
+}
+
 worker.onmessage = function(e) {
 
 	if( e.data == "end" ) {
@@ -68,10 +79,7 @@ worker.onmessage = function(e) {
 		addFinalScoreView();
 	}
 	else {
-		if ( checkEdge(queue[0]) ) {
-			stage.removeChild(queue[0]);
-			queue.shift();
-		}
+
 		let tmp = 0 , node = 0;
 		switch(e.data) {
 		case "0":
