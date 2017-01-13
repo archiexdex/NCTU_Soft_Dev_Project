@@ -9,6 +9,8 @@ let circleRadius = 50, hitPadRadius = 60;
 let heldKeys = {};
 let center = { 'x' : window.innerWidth/2, 'y' : window.innerHeight/2};
 let interval = 1000;
+let queue = [];
+
 
 var song = [];
 var worker = new Worker('worker.js');
@@ -65,17 +67,27 @@ worker.onmessage = function(e) {
 		addFinalScoreView();
 	}
 	else {
+		// let ptr = queue[0].circle; queue.shift();
 		switch(e.data) {
 		case "0":
-			console.log("up");
-			stage.removeChild(circleUp);
-			circleUp = null;
-			circleUp = new createjs.Shape();
-			circleUp.graphics.beginFill("Crimson").drawCircle(0, 0, 50);
-			circleUp.x = center.x;
-			circleUp.y = center.y;
-			createjs.Tween.get(circleUp).to({y: -100}, interval);
-			stage.addChild(circleUp);
+			// console.log("up");
+			// stage.removeChild(ptr);
+			let tmp = new createjs.Shape();
+			tmp.graphics.beginFill("Crimson").drawCircle(0, 0, 50);
+			tmp.x = center.x;
+			tmp.y = center.y;
+			createjs.Tween.get(tmp).to({y: -100}, interval);
+			stage.addChild(tmp);
+			let node = { circle: tmp, mode:1};
+			queue.push(node);
+			// stage.removeChild(circleUp);
+			// circleUp = null;
+			// circleUp = new createjs.Shape();
+			// circleUp.graphics.beginFill("Crimson").drawCircle(0, 0, 50);
+			// circleUp.x = center.x;
+			// circleUp.y = center.y;
+			// createjs.Tween.get(circleUp).to({y: -100}, interval);
+			// stage.addChild(circleUp);
 			break;
 		case "1":
 			console.log("down");
@@ -100,7 +112,6 @@ function init() {
 	song[2] = new Song(2, "夏祭り", "source/Natsumatsuri.mp3", "Natsumatsuri Part", "source/Natsumatsuri_Part.mp3", songContent);
 
 	song[3] = new Song(3, "Hellhold", "source/Seasons_of_Asia.mp3", "Seasons of Asia Part", "source/Seasons_of_Asia_Part.mp3", songContent);
-
 
 	stage = new createjs.Stage("demoCanvas");
 	stage.canvas.width = window.innerWidth-20;
@@ -235,7 +246,6 @@ function selectPage(){
 		createjs.Tween.get(diff[i][0]).to({y:0}, 200);
 		}
 	});
-
 
 	//song select
 
@@ -373,7 +383,9 @@ function getCircle(mode) {
 
 function viewSetting() {
 
-	circleUp=getCircle("up");
+	// circleUp=getCircle("up");
+	// let node = { circle:getCircle("up"), mode:1};
+	// queue.push(node);
 	circleDown=getCircle("down");
 	circleLeft=getCircle("left");
 	circleRight=getCircle("right");
@@ -491,7 +503,7 @@ document.onkeydown = function(e) {
 	let ptr = e.keyCode - 37;
 	hitPadList[ptr].shadow = null;
 	if ( ptr % 2 ) {
-		comboEffect(circleUp, hitPadList[ptr], "y");
+		comboEffect(queue[0].circle, hitPadList[ptr], "y");
 	}
 	else {
 		comboEffect(circleLeft, hitPadList[ptr], "x")
