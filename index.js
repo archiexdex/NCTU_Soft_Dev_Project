@@ -61,13 +61,17 @@ function readTextFile(file) {
 }
 
 worker.onmessage = function(e) {
+
 	if( e.data == "end" ) {
 		createjs.Sound.stop();
 		stage.removeChild(MainView);
 		addFinalScoreView();
 	}
 	else {
-		// let ptr = queue[0].circle; queue.shift();
+		if ( checkEdge(queue[0]) ) {
+			stage.removeChild(queue[0]);
+			queue.shift();
+		}
 		switch(e.data) {
 		case "0":
 			// console.log("up");
@@ -100,6 +104,32 @@ worker.onmessage = function(e) {
 		}
 
 	}
+}
+
+function checkEdge(node) {
+	if ( node == undefined ){
+		return false;
+	}
+	let mode = node.mode;
+	let flg = false;
+	switch (mode) {
+		case 0:
+
+			break;
+		case 1:
+			if ( node.circle.y < 0 ) {
+				return true;
+			}
+			break;
+		case 2:
+
+			break;
+		case 3:
+
+			break;
+	}
+
+	return
 }
 
 function init() {
@@ -386,9 +416,9 @@ function viewSetting() {
 	// circleUp=getCircle("up");
 	// let node = { circle:getCircle("up"), mode:1};
 	// queue.push(node);
-	circleDown=getCircle("down");
-	circleLeft=getCircle("left");
-	circleRight=getCircle("right");
+	// circleDown=getCircle("down");
+	// circleLeft=getCircle("left");
+	// circleRight=getCircle("right");
 
 
 	hitPadList[0] = new HitPad(75, window.innerHeight/2);
@@ -503,14 +533,18 @@ document.onkeydown = function(e) {
 	let ptr = e.keyCode - 37;
 	hitPadList[ptr].shadow = null;
 	if ( ptr % 2 ) {
-		comboEffect(queue[0].circle, hitPadList[ptr], "y");
+		if ( queue[0] != undefined && comboEffect(queue[0].circle, hitPadList[ptr], "y") ) {
+			stage.removeChild(queue[0].circle);
+			queue.shift();
+		}
+
 	}
 	else {
 		comboEffect(circleLeft, hitPadList[ptr], "x")
 	}
 	switch(e.keyCode) {
 		case 37:
-			// console.log("left");
+			console.log("left");
 			// hitPadList[0].shadow = null;
 			// comboEffect(circleLeft, hitPadList[0], "x")
 			/*if( comboEffect(circleLeft, hitPadLeft, "x") ) {
@@ -519,7 +553,7 @@ document.onkeydown = function(e) {
 			}*/
 			break;
 		case 38:
-			// console.log("up");
+			console.log("up");
 			// hitPadList[1].shadow = null;
 			// comboEffect(circleUp, hitPadList[1], "y");
 			// hitPadUp.shadow = null;
