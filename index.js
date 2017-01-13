@@ -1,6 +1,9 @@
 let stage;
 let playerScore, completeRate, missCombo, perfectCombo, goodCombo;
-let hitPadUp, hitPadDown, hitPadLeft, hitPadRight;
+// let GM = new GameManager('Circle.js');
+let hitPadList = [];
+// let hitPadUp, hitPadDown, hitPadLeft, hitPadRight;
+let circleWay = [];
 let circleUp, circleDown, circleLeft, circleRight;
 let circleRadius = 50, hitPadRadius = 60;
 let heldKeys = {};
@@ -14,6 +17,7 @@ var songContent;
 var MainView = new createjs.Container();
 
 var totalHit = 0;
+
 //Final score page
 var finalScoreText;
 var finalScoreValue;
@@ -35,33 +39,7 @@ var rank_name;
 var rank_list;
 var SelectView = new createjs.Container();
 
-class Song {
-	constructor(songNumber, songName, songSource, songPartName, songPartSource, songContent) {
-		this.songNumber = songNumber;
-		this.songName = songName;
-		this.songSource = songSource;
-		this.songPartName = songPartName;
-		this.songPartSource = songPartSource;
-		createjs.Sound.registerSound(this.songSource, this.songName);
-		createjs.Sound.registerSound(this.songPartSource, this.songPartName);
-		this.songContent = songContent;
-	}
-	create() {
-		var song_tmp = new createjs.Shape();
-		song_tmp.alpha = 0.5;
-		song_tmp.graphics.beginFill("#FFCCFF").drawRect(window.innerWidth-260, 50 + this.songNumber*100, 310 ,80);
-		var song_text_tmp = new createjs.Text(this.songName, '35px Arial', '#CC66CC');
-		song_text_tmp.x = window.innerWidth-240;
-		song_text_tmp.y = 90-song_text_tmp.getMeasuredHeight()/2 + this.songNumber*100;
 
-		song_tmp.on("click", function(event){
-			songSelected = this.songNumber;
-			createjs.Sound.stop();
-			createjs.Sound.play(this.songPartName);
-		}, this);
-		return [song_tmp, song_text_tmp];
-	}
-}
 
 function readTextFile(file) {
 	var rawFile = new XMLHttpRequest();
@@ -78,44 +56,6 @@ function readTextFile(file) {
 		}
 	}
 	rawFile.send(null);
-}
-
-class Difficulty {
-	constructor(diffNumber, diffText) {
-		this.diffNumber = diffNumber;
-		this.diffText = diffText;
-	}
-	create() {
-		var diff_tmp = new createjs.Shape();
-		diff_tmp.alpha=0.7;
-		diff_tmp.graphics.beginFill("#CCFFCC").drawRoundRectComplex(window.innerWidth/2-245+130*this.diffNumber, window.innerHeight-210, 100 ,250,45,45,0,0);
-		var diff_text_tmp = new createjs.Text(this.diffText, '35px Arial', '#CCCCCC');
-		diff_text_tmp.rotation = 270;
-		diff_text_tmp.x=window.innerWidth/2-195+130*this.diffNumber-diff_text_tmp.getMeasuredHeight()/2;
-		diff_text_tmp.y=window.innerHeight-50;
-
-		return [diff_tmp, diff_text_tmp]
-	}
-}
-
-class HitPad {
-	constructor(x, y) {
-		var tmp = new createjs.Shape();
-		tmp.graphics.beginFill("Pink").drawCircle(0, 0, 60);
-		tmp.x = x;
-		tmp.y = y;
-		tmp.shadow = new createjs.Shadow("#f44295", 0, 5, 10);
-		return tmp;
-	}
-}
-
-class ComboEffect {
-	constructor(comboText) {
-		var tmp = new createjs.Text(comboText, 'bold 50px Arial', '#A3FF24');
-		tmp.x = window.innerWidth/2-tmp.getMeasuredWidth()/2;
-		tmp.y = window.innerHeight/2-tmp.getMeasuredHeight()/2;
-		return tmp;
-	}
 }
 
 worker.onmessage = function(e) {
@@ -146,22 +86,22 @@ worker.onmessage = function(e) {
 		case "3":
 			console.log("right");
 		}
-		
+
 	}
 }
 
 function init() {
-	
+
 	readTextFile("source/Seasons_of_Asia.txt");
 	song[0] = new Song(0, "Seasons of Asia", "source/Seasons_of_Asia.mp3", "Seasons of Asia Part", "source/Seasons_of_Asia_Part.mp3", songContent);
 	readTextFile("source/LOVE_War.txt");
 	song[1] = new Song(1, "LOVE戦!!", "source/LOVE_War.mp3", "LOVE戦!! Part", "source/LOVE_War_Part.mp3", songContent);
-	
-	song[2] = new Song(2, "Lean on", "source/Seasons_of_Asia.mp3", "Seasons of Asia Part", "source/Seasons_of_Asia_Part.mp3", songContent);
-	
+	readTextFile("source/Natsumatsuri.txt");
+	song[2] = new Song(2, "夏祭り", "source/Natsumatsuri.mp3", "Natsumatsuri Part", "source/Natsumatsuri_Part.mp3", songContent);
+
 	song[3] = new Song(3, "Hellhold", "source/Seasons_of_Asia.mp3", "Seasons of Asia Part", "source/Seasons_of_Asia_Part.mp3", songContent);
-	
-	
+
+
 	stage = new createjs.Stage("demoCanvas");
 	stage.canvas.width = window.innerWidth-20;
 	stage.canvas.height = window.innerHeight-20;
@@ -205,7 +145,7 @@ function addFinalScoreView() {
 	playAgainButton.y = 500;
 	FinalView.addChild(finalScoreText, finalScoreValue, completeRateText, completeRateValue, playAgainButton);
 	stage.addChild(FinalView);
-	
+
 	playAgainButton.on("click", function(event){
 		stage.removeChild(FinalView);
 		location.reload();
@@ -400,7 +340,7 @@ function tweenSelecePage(){
 	stage.removeChild(SelectView);
 	createjs.Sound.play(song[songSelected].songName);
 	worker.postMessage(song[songSelected].songContent);
-	
+
 }
 
 function rankText(name,number){
@@ -432,17 +372,23 @@ function getCircle(mode) {
 }
 
 function viewSetting() {
-	
+
 	circleUp=getCircle("up");
 	circleDown=getCircle("down");
 	circleLeft=getCircle("left");
 	circleRight=getCircle("right");
 
-	hitPadUp = new HitPad(window.innerWidth/2, 75);
-	hitPadDown = new HitPad(window.innerWidth/2, window.innerHeight-95);
-	hitPadLeft = new HitPad(75, window.innerHeight/2);
-	hitPadRight = new HitPad(window.innerWidth-95, window.innerHeight/2);
-	
+
+	hitPadList[0] = new HitPad(75, window.innerHeight/2);
+	hitPadList[1] = new HitPad(window.innerWidth/2, 75);
+	hitPadList[2] = new HitPad(window.innerWidth-95, window.innerHeight/2);
+	hitPadList[3] = new HitPad(window.innerWidth/2, window.innerHeight-95);
+
+	// hitPadUp = new HitPad(window.innerWidth/2, 75);
+	// hitPadDown = new HitPad(window.innerWidth/2, window.innerHeight-95);
+	// hitPadLeft = new HitPad(75, window.innerHeight/2);
+	// hitPadRight = new HitPad(window.innerWidth-95, window.innerHeight/2);
+
 	playerScore = new createjs.Text('0', 'bold 20px Arial', '#A3FF24');
 	playerScore.x = window.innerWidth/2- playerScore.getMeasuredWidth() -300;
 	playerScore.y = 20;
@@ -454,8 +400,12 @@ function viewSetting() {
 	perfectCombo = new ComboEffect('Perfect');
 	goodCombo = new ComboEffect('Good');
 	missCombo = new ComboEffect('Miss');
-	
-	MainView.addChild(hitPadUp, hitPadDown, hitPadLeft, hitPadRight, playerScore, completeRate);
+
+	MainView.addChild(playerScore, completeRate);
+	for (var i = 0; i < hitPadList.length; i++) {
+		MainView.addChild(hitPadList[i]);
+	}
+
 	stage.addChild(MainView);
 
 }
@@ -480,9 +430,9 @@ function updateScore(hit) {
 	completeRate.text = Math.floor((totalHit/songContent[2].split(",").length)*10000)/100 + "%";
 }
 function comboEffect(circle, hitPad, coord) {
-	
+
 	removeComboEffect();
-	
+
 	var perfect = 20;
 	var good = 40;
 	if(coord=="x") {
@@ -538,20 +488,30 @@ document.onkeydown = function(e) {
 		return;
 	}
 	heldKeys[e.keyCode] = true;
+	let ptr = e.keyCode - 37;
+	hitPadList[ptr].shadow = null;
+	if ( ptr % 2 ) {
+		comboEffect(circleUp, hitPadList[ptr], "y");
+	}
+	else {
+		comboEffect(circleLeft, hitPadList[ptr], "x")
+	}
 	switch(e.keyCode) {
 		case 37:
-			console.log("left");
-			hitPadLeft.shadow = null;
-			comboEffect(circleLeft, hitPadLeft, "x")
+			// console.log("left");
+			// hitPadList[0].shadow = null;
+			// comboEffect(circleLeft, hitPadList[0], "x")
 			/*if( comboEffect(circleLeft, hitPadLeft, "x") ) {
 				stage.removeChild(circleLeft);
 				circleLeft = null;
 			}*/
 			break;
 		case 38:
-			console.log("up");
-			hitPadUp.shadow = null;
-			comboEffect(circleUp, hitPadUp, "y");
+			// console.log("up");
+			// hitPadList[1].shadow = null;
+			// comboEffect(circleUp, hitPadList[1], "y");
+			// hitPadUp.shadow = null;
+			// comboEffect(circleUp, hitPadUp, "y");
 			/*if( comboEffect(circleUp, hitPadUp, "y") ) {
 				stage.removeChild(circleUp);
 				circleUp = null;
@@ -559,8 +519,8 @@ document.onkeydown = function(e) {
 			break;
 		case 39:
 			console.log("right");
-			hitPadRight.shadow = null;
-			comboEffect(circleRight, hitPadRight, "x");
+			hitPadList[2].shadow = null;
+			comboEffect(circleRight, hitPadList[2], "x");
 			/*if( comboEffect(circleRight, hitPadRight, "x") ) {
 				stage.removeChild(circleRight);
 				circleRight = null;
@@ -568,8 +528,8 @@ document.onkeydown = function(e) {
 			break;
 		case 40:
 			console.log("down");
-			hitPadDown.shadow = null;
-			comboEffect(circleDown, hitPadDown, "y");
+			hitPadList[3].shadow = null;
+			comboEffect(circleDown, hitPadList[3], "y");
 			/*if( comboEffect(circleDown, hitPadDown, "y") ) {
 				stage.removeChild(circleDown);
 				circleDown = null;
@@ -582,15 +542,15 @@ document.onkeyup = function(e) {
 	delete heldKeys[e.keyCode];
 	switch(e.keyCode) {
 		case 37:
-			hitPadLeft.shadow = new createjs.Shadow("#f44295", 0, 5, 10);
+			hitPadList[0].shadow = new createjs.Shadow("#f44295", 0, 5, 10);
 			break;
 		case 38:
-			hitPadUp.shadow = new createjs.Shadow("#f44295", 0, 5, 10);
+			hitPadList[1].shadow = new createjs.Shadow("#f44295", 0, 5, 10);
 			break;
 		case 39:
-			hitPadRight.shadow = new createjs.Shadow("#f44295", 0, 5, 10);
+			hitPadList[2].shadow = new createjs.Shadow("#f44295", 0, 5, 10);
 			break;
 		case 40:
-			hitPadDown.shadow = new createjs.Shadow("#f44295", 0, 5, 10);
+			hitPadList[3].shadow = new createjs.Shadow("#f44295", 0, 5, 10);
 	}
 };
