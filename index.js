@@ -151,7 +151,7 @@ function checkEdge(node) {
 			}
 			break;
 		case 2:
-			if ( node.circle.y > window.innerWidth ) {
+			if ( node.circle.x > window.innerWidth ) {
 				return true;
 			}
 			break;
