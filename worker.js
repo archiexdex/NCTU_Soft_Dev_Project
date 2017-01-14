@@ -9,10 +9,11 @@ var circleDirection;
 onmessage = function(e) {
 	bpm = e.data[0];
 	songLength = e.data[1];
-	songContent = e.data[2];
+	beat = e.data[2];
+	songContent = e.data[3];
 	songContent = songContent.split(",");
 	console.log(songContent.length);
-	circleDirection = e.data[3];
+	circleDirection = e.data[4];
 	circleDirection = circleDirection.split(",");
 	console.log(circleDirection);
 	interval = 60 / bpm * 1000 / 2

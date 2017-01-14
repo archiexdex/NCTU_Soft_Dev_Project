@@ -1,16 +1,11 @@
 let stage;
 let playerScore, completeRate, missCombo, perfectCombo, goodCombo;
-// let GM = new GameManager('Circle.js');
-let hitPadList = [];
-// let hitPadUp, hitPadDown, hitPadLeft, hitPadRight;
-let circleWay = [];
+let hitPadUp, hitPadDown, hitPadLeft, hitPadRight;
 let circleUp, circleDown, circleLeft, circleRight;
 let circleRadius = 50, hitPadRadius = 60;
 let heldKeys = {};
 let center = { 'x' : window.innerWidth/2, 'y' : window.innerHeight/2};
 let interval = 1000;
-let queue = [];
-
 
 var song = [];
 var worker = new Worker('worker.js');
@@ -19,7 +14,6 @@ var songContent;
 var MainView = new createjs.Container();
 
 var totalHit = 0;
-
 //Final score page
 var finalScoreText;
 var finalScoreValue;
@@ -41,7 +35,33 @@ var rank_name;
 var rank_list;
 var SelectView = new createjs.Container();
 
+class Song {
+	constructor(songNumber, songName, songSource, songPartName, songPartSource, songContent) {
+		this.songNumber = songNumber;
+		this.songName = songName;
+		this.songSource = songSource;
+		this.songPartName = songPartName;
+		this.songPartSource = songPartSource;
+		createjs.Sound.registerSound(this.songSource, this.songName);
+		createjs.Sound.registerSound(this.songPartSource, this.songPartName);
+		this.songContent = songContent;
+	}
+	create() {
+		var song_tmp = new createjs.Shape();
+		song_tmp.alpha = 0.5;
+		song_tmp.graphics.beginFill("#FFCCFF").drawRect(window.innerWidth-260, 50 + this.songNumber*100, 310 ,80);
+		var song_text_tmp = new createjs.Text(this.songName, '35px Arial', '#CC66CC');
+		song_text_tmp.x = window.innerWidth-240;
+		song_text_tmp.y = 90-song_text_tmp.getMeasuredHeight()/2 + this.songNumber*100;
 
+		song_tmp.on("click", function(event){
+			songSelected = this.songNumber;
+			createjs.Sound.stop();
+			createjs.Sound.play(this.songPartName);
+		}, this);
+		return [song_tmp, song_text_tmp];
+	}
+}
 
 function readTextFile(file) {
 	var rawFile = new XMLHttpRequest();
@@ -60,134 +80,88 @@ function readTextFile(file) {
 	rawFile.send(null);
 }
 
-setInterval("checkQueue()", 100);
-function checkQueue() {
-	console.log("QQQQQQQWQWQWQWQ");
-	for (let i = 0 ; i < queue.length ; i++) {
-		if ( checkEdge(queue[i]) ) {
-			stage.removeChild(queue[i]);
-			queue.shift();
-		}
+class Difficulty {
+	constructor(diffNumber, diffText) {
+		this.diffNumber = diffNumber;
+		this.diffText = diffText;
+	}
+	create() {
+		var diff_tmp = new createjs.Shape();
+		diff_tmp.alpha=0.7;
+		diff_tmp.graphics.beginFill("#CCFFCC").drawRoundRectComplex(window.innerWidth/2-245+130*this.diffNumber, window.innerHeight-210, 100 ,250,45,45,0,0);
+		var diff_text_tmp = new createjs.Text(this.diffText, '35px Arial', '#CCCCCC');
+		diff_text_tmp.rotation = 270;
+		diff_text_tmp.x=window.innerWidth/2-195+130*this.diffNumber-diff_text_tmp.getMeasuredHeight()/2;
+		diff_text_tmp.y=window.innerHeight-50;
+
+		return [diff_tmp, diff_text_tmp]
+	}
+}
+
+class HitPad {
+	constructor(x, y) {
+		var tmp = new createjs.Shape();
+		tmp.graphics.beginFill("Pink").drawCircle(0, 0, 60);
+		tmp.x = x;
+		tmp.y = y;
+		tmp.shadow = new createjs.Shadow("#f44295", 0, 5, 10);
+		return tmp;
+	}
+}
+
+class ComboEffect {
+	constructor(comboText) {
+		var tmp = new createjs.Text(comboText, 'bold 50px Arial', '#A3FF24');
+		tmp.x = window.innerWidth/2-tmp.getMeasuredWidth()/2;
+		tmp.y = window.innerHeight/2-tmp.getMeasuredHeight()/2;
+		return tmp;
 	}
 }
 
 worker.onmessage = function(e) {
-
 	if( e.data == "end" ) {
 		createjs.Sound.stop();
 		stage.removeChild(MainView);
 		addFinalScoreView();
 	}
 	else {
-
-		let tmp = 0 , node = 0;
 		switch(e.data) {
 		case "0":
 			console.log("up");
-			// stage.removeChild(ptr);
-			tmp = new createjs.Shape();
-			tmp.graphics.beginFill("Crimson").drawCircle(0, 0, 50);
-			tmp.alpha=0.5;
-			tmp.x = center.x;
-			tmp.y = center.y;console.log(window.innerHeight/2);console.log("@@@@");
-			createjs.Tween.get(tmp).to({y: center.y - window.innerHeight/2 - 100}, interval);
-			stage.addChild(tmp);
-			node = { circle: tmp, mode:1};
-			queue.push(node);
-			// stage.removeChild(circleUp);
-			// circleUp = null;
-			// circleUp = new createjs.Shape();
-			// circleUp.graphics.beginFill("Crimson").drawCircle(0, 0, 50);
-			// circleUp.x = center.x;
-			// circleUp.y = center.y;
-			// createjs.Tween.get(circleUp).to({y: -100}, interval);
-			// stage.addChild(circleUp);
+			stage.removeChild(circleUp);
+			circleUp = null;
+			circleUp = new createjs.Shape();
+			circleUp.graphics.beginFill("Crimson").drawCircle(0, 0, 50);
+			circleUp.x = center.x;
+			circleUp.y = center.y;
+			createjs.Tween.get(circleUp).to({y: -100}, interval);
+			stage.addChild(circleUp);
 			break;
 		case "1":
 			console.log("down");
-			tmp = new createjs.Shape();
-			tmp.graphics.beginFill("Yellow").drawCircle(0, 0, 50);
-			tmp.alpha=0.5;
-			tmp.x = center.x;
-			tmp.y = center.y;
-			createjs.Tween.get(tmp).to({y: center.y + window.innerHeight/2 + 100 }, interval);
-			stage.addChild(tmp);
-			node = { circle: tmp, mode:3};
-			queue.push(node);
-
 			break;
 		case "2":
 			console.log("left");
-			tmp = new createjs.Shape();
-			tmp.graphics.beginFill("Green").drawCircle(0, 0, 50);
-			tmp.alpha=0.5;
-			tmp.x = center.x;
-			tmp.y = center.y;
-			createjs.Tween.get(tmp).to({x: center.x - window.innerWidth/2 - 100}, interval);
-			stage.addChild(tmp);
-			node = { circle: tmp, mode:0};
-			queue.push(node);
 			break;
 		case "3":
 			console.log("right");
-			tmp = new createjs.Shape();
-			tmp.graphics.beginFill("Blue").drawCircle(0, 0, 50);
-			tmp.alpha=0.5;
-			tmp.x = center.x;
-			tmp.y = center.y;
-			createjs.Tween.get(tmp).to({x: center.x + window.innerWidth/2 + 100}, interval);
-			stage.addChild(tmp);
-			node = { circle: tmp, mode:2};
-			queue.push(node);
-			break;
 		}
-
+		
 	}
-}
-
-function checkEdge(node) {
-	if ( node == undefined ){
-		return false;
-	}
-	let mode = node.mode;
-	let flg = false;
-	switch (mode) {
-		case 0:
-			if ( node.circle.x < 0 ) {
-				return true;
-			}
-			break;
-		case 1:
-			if ( node.circle.y < 0 ) {
-				return true;
-			}
-			break;
-		case 2:
-			if ( node.circle.x > window.innerWidth ) {
-				return true;
-			}
-			break;
-		case 3:
-			if ( node.circle.y > window.innerHeight ) {
-				return true;
-			}
-			break;
-	}
-
-	return
 }
 
 function init() {
-
+	
 	readTextFile("source/Seasons_of_Asia.txt");
 	song[0] = new Song(0, "Seasons of Asia", "source/Seasons_of_Asia.mp3", "Seasons of Asia Part", "source/Seasons_of_Asia_Part.mp3", songContent);
 	readTextFile("source/LOVE_War.txt");
 	song[1] = new Song(1, "LOVE戦!!", "source/LOVE_War.mp3", "LOVE戦!! Part", "source/LOVE_War_Part.mp3", songContent);
 	readTextFile("source/Natsumatsuri.txt");
 	song[2] = new Song(2, "夏祭り", "source/Natsumatsuri.mp3", "Natsumatsuri Part", "source/Natsumatsuri_Part.mp3", songContent);
-
+	
 	song[3] = new Song(3, "Hellhold", "source/Seasons_of_Asia.mp3", "Seasons of Asia Part", "source/Seasons_of_Asia_Part.mp3", songContent);
-
+	
+	
 	stage = new createjs.Stage("demoCanvas");
 	stage.canvas.width = window.innerWidth-20;
 	stage.canvas.height = window.innerHeight-20;
@@ -231,7 +205,7 @@ function addFinalScoreView() {
 	playAgainButton.y = 500;
 	FinalView.addChild(finalScoreText, finalScoreValue, completeRateText, completeRateValue, playAgainButton);
 	stage.addChild(FinalView);
-
+	
 	playAgainButton.on("click", function(event){
 		stage.removeChild(FinalView);
 		location.reload();
@@ -321,6 +295,7 @@ function selectPage(){
 		createjs.Tween.get(diff[i][0]).to({y:0}, 200);
 		}
 	});
+
 
 	//song select
 
@@ -425,7 +400,7 @@ function tweenSelecePage(){
 	stage.removeChild(SelectView);
 	createjs.Sound.play(song[songSelected].songName);
 	worker.postMessage(song[songSelected].songContent);
-
+	
 }
 
 function rankText(name,number){
@@ -457,25 +432,17 @@ function getCircle(mode) {
 }
 
 function viewSetting() {
+	
+	circleUp=getCircle("up");
+	circleDown=getCircle("down");
+	circleLeft=getCircle("left");
+	circleRight=getCircle("right");
 
-	// circleUp=getCircle("up");
-	// let node = { circle:getCircle("up"), mode:1};
-	// queue.push(node);
-	// circleDown=getCircle("down");
-	// circleLeft=getCircle("left");
-	// circleRight=getCircle("right");
-
-
-	hitPadList[0] = new HitPad(75, window.innerHeight/2);
-	hitPadList[1] = new HitPad(window.innerWidth/2, 75);
-	hitPadList[2] = new HitPad(window.innerWidth-95, window.innerHeight/2);
-	hitPadList[3] = new HitPad(window.innerWidth/2, window.innerHeight-95);
-
-	// hitPadUp = new HitPad(window.innerWidth/2, 75);
-	// hitPadDown = new HitPad(window.innerWidth/2, window.innerHeight-95);
-	// hitPadLeft = new HitPad(75, window.innerHeight/2);
-	// hitPadRight = new HitPad(window.innerWidth-95, window.innerHeight/2);
-
+	hitPadUp = new HitPad(window.innerWidth/2, 75);
+	hitPadDown = new HitPad(window.innerWidth/2, window.innerHeight-95);
+	hitPadLeft = new HitPad(75, window.innerHeight/2);
+	hitPadRight = new HitPad(window.innerWidth-95, window.innerHeight/2);
+	
 	playerScore = new createjs.Text('0', 'bold 20px Arial', '#A3FF24');
 	playerScore.x = window.innerWidth/2- playerScore.getMeasuredWidth() -300;
 	playerScore.y = 20;
@@ -487,12 +454,8 @@ function viewSetting() {
 	perfectCombo = new ComboEffect('Perfect');
 	goodCombo = new ComboEffect('Good');
 	missCombo = new ComboEffect('Miss');
-
-	MainView.addChild(playerScore, completeRate);
-	for (var i = 0; i < hitPadList.length; i++) {
-		MainView.addChild(hitPadList[i]);
-	}
-
+	
+	MainView.addChild(hitPadUp, hitPadDown, hitPadLeft, hitPadRight, playerScore, completeRate);
 	stage.addChild(MainView);
 
 }
@@ -514,15 +477,15 @@ function updateScore(hit) {
 		playerScore.text = parseInt(playerScore.text + 1);
 	}
 	totalHit++;
-	completeRate.text = Math.floor((totalHit/songContent[2].split(",").length)*10000)/100 + "%";
+	completeRate.text = Math.floor((totalHit/songContent[3].split(",").length)*10000)/100 + "%";
 }
 function comboEffect(circle, hitPad, coord) {
-
+	
 	removeComboEffect();
-
+	
 	var perfect = 20;
 	var good = 40;
-	if(coord == "x" ) {
+	if(coord=="x") {
 		if(circle.x<=hitPad.x+perfect && circle.x>=hitPad.x-perfect) {
 			stage.addChild(perfectCombo);
 			createjs.Tween.get(perfectCombo).wait(500).call( removeComboEffect );
@@ -544,7 +507,7 @@ function comboEffect(circle, hitPad, coord) {
 			createjs.Tween.get(missCombo).wait(500).call( removeComboEffect );
 		}
 	}
-	else if(coord == "y" ) {
+	else if(coord=="y") {
 		if(circle.y<=hitPad.y+perfect && circle.y>=hitPad.y-perfect) {
 			stage.addChild(perfectCombo);
 			createjs.Tween.get(perfectCombo).wait(500).call( removeComboEffect );
@@ -575,59 +538,43 @@ document.onkeydown = function(e) {
 		return;
 	}
 	heldKeys[e.keyCode] = true;
-	let ptr = e.keyCode - 37;
-	hitPadList[ptr].shadow = null;
-	if ( ptr % 2 ) {
-		if ( queue[0] != undefined && comboEffect(queue[0].circle, hitPadList[ptr], "y") ) {
-			stage.removeChild(queue[0].circle);
-			queue.shift();
-		}
-	}
-	else {
-		if ( queue[0] != undefined && comboEffect(queue[0].circle, hitPadList[ptr], "x") ) {
-			stage.removeChild(queue[0].circle);
-			queue.shift();
-		}
-	}
 	switch(e.keyCode) {
-		// case 37:
-		// 	console.log("left");
-		// 	// hitPadList[0].shadow = null;
-		// 	// comboEffect(circleLeft, hitPadList[0], "x")
-		// 	/*if( comboEffect(circleLeft, hitPadLeft, "x") ) {
-		// 		stage.removeChild(circleLeft);
-		// 		circleLeft = null;
-		// 	}*/
-		// 	break;
-		// case 38:
-		// 	console.log("up");
-		// 	// hitPadList[1].shadow = null;
-		// 	// comboEffect(circleUp, hitPadList[1], "y");
-		// 	// hitPadUp.shadow = null;
-		// 	// comboEffect(circleUp, hitPadUp, "y");
-		// 	/*if( comboEffect(circleUp, hitPadUp, "y") ) {
-		// 		stage.removeChild(circleUp);
-		// 		circleUp = null;
-		// 	}*/
-		// 	break;
-		// case 39:
-		// 	console.log("right");
-		// 	// hitPadList[2].shadow = null;
-		// 	// comboEffect(circleRight, hitPadList[2], "x");
-		// 	/*if( comboEffect(circleRight, hitPadRight, "x") ) {
-		// 		stage.removeChild(circleRight);
-		// 		circleRight = null;
-		// 	}*/
-		// 	break;
-		// case 40:
-		// 	console.log("down");
-		// 	// hitPadList[3].shadow = null;
-		// 	// comboEffect(circleDown, hitPadList[3], "y");
-		// 	/*if( comboEffect(circleDown, hitPadDown, "y") ) {
-		// 		stage.removeChild(circleDown);
-		// 		circleDown = null;
-		// 	}*/
-		// 	break;
+		case 37:
+			console.log("left");
+			hitPadLeft.shadow = null;
+			comboEffect(circleLeft, hitPadLeft, "x")
+			/*if( comboEffect(circleLeft, hitPadLeft, "x") ) {
+				stage.removeChild(circleLeft);
+				circleLeft = null;
+			}*/
+			break;
+		case 38:
+			console.log("up");
+			hitPadUp.shadow = null;
+			comboEffect(circleUp, hitPadUp, "y");
+			/*if( comboEffect(circleUp, hitPadUp, "y") ) {
+				stage.removeChild(circleUp);
+				circleUp = null;
+			}*/
+			break;
+		case 39:
+			console.log("right");
+			hitPadRight.shadow = null;
+			comboEffect(circleRight, hitPadRight, "x");
+			/*if( comboEffect(circleRight, hitPadRight, "x") ) {
+				stage.removeChild(circleRight);
+				circleRight = null;
+			}*/
+			break;
+		case 40:
+			console.log("down");
+			hitPadDown.shadow = null;
+			comboEffect(circleDown, hitPadDown, "y");
+			/*if( comboEffect(circleDown, hitPadDown, "y") ) {
+				stage.removeChild(circleDown);
+				circleDown = null;
+			}*/
+			break;
 	}
 };
 
@@ -635,15 +582,15 @@ document.onkeyup = function(e) {
 	delete heldKeys[e.keyCode];
 	switch(e.keyCode) {
 		case 37:
-			hitPadList[0].shadow = new createjs.Shadow("#f44295", 0, 5, 10);
+			hitPadLeft.shadow = new createjs.Shadow("#f44295", 0, 5, 10);
 			break;
 		case 38:
-			hitPadList[1].shadow = new createjs.Shadow("#f44295", 0, 5, 10);
+			hitPadUp.shadow = new createjs.Shadow("#f44295", 0, 5, 10);
 			break;
 		case 39:
-			hitPadList[2].shadow = new createjs.Shadow("#f44295", 0, 5, 10);
+			hitPadRight.shadow = new createjs.Shadow("#f44295", 0, 5, 10);
 			break;
 		case 40:
-			hitPadList[3].shadow = new createjs.Shadow("#f44295", 0, 5, 10);
+			hitPadDown.shadow = new createjs.Shadow("#f44295", 0, 5, 10);
 	}
 };
