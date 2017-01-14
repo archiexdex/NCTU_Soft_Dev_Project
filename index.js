@@ -60,25 +60,38 @@ function readTextFile(file) {
 	rawFile.send(null);
 }
 
+setInterval("checkQueue()", 100);
+function checkQueue() {
+	console.log("QQQQQQQWQWQWQWQ");
+	for (let i = 0 ; i < queue.length ; i++) {
+		if ( checkEdge(queue[i]) ) {
+			stage.removeChild(queue[i]);
+			queue.shift();
+		}
+	}
+}
+
 worker.onmessage = function(e) {
+
 	if( e.data == "end" ) {
 		createjs.Sound.stop();
 		stage.removeChild(MainView);
 		addFinalScoreView();
 	}
 	else {
-		// let ptr = queue[0].circle; queue.shift();
+
+		let tmp = 0 , node = 0;
 		switch(e.data) {
 		case "0":
-			// console.log("up");
+			console.log("up");
 			// stage.removeChild(ptr);
-			let tmp = new createjs.Shape();
+			tmp = new createjs.Shape();
 			tmp.graphics.beginFill("Crimson").drawCircle(0, 0, 50);
 			tmp.x = center.x;
-			tmp.y = center.y;
-			createjs.Tween.get(tmp).to({y: -100}, interval);
+			tmp.y = center.y;console.log(window.innerHeight/2);console.log("@@@@");
+			createjs.Tween.get(tmp).to({y: center.y - window.innerHeight/2 - 100}, interval);
 			stage.addChild(tmp);
-			let node = { circle: tmp, mode:1};
+			node = { circle: tmp, mode:1};
 			queue.push(node);
 			// stage.removeChild(circleUp);
 			// circleUp = null;
@@ -91,15 +104,73 @@ worker.onmessage = function(e) {
 			break;
 		case "1":
 			console.log("down");
+			tmp = new createjs.Shape();
+			tmp.graphics.beginFill("Yellow").drawCircle(0, 0, 50);
+			tmp.x = center.x;
+			tmp.y = center.y;
+			createjs.Tween.get(tmp).to({y: center.y + window.innerHeight/2 + 100 }, interval);
+			stage.addChild(tmp);
+			node = { circle: tmp, mode:3};
+			queue.push(node);
+
 			break;
 		case "2":
 			console.log("left");
+			tmp = new createjs.Shape();
+			tmp.graphics.beginFill("Green").drawCircle(0, 0, 50);
+			tmp.x = center.x;
+			tmp.y = center.y;
+			createjs.Tween.get(tmp).to({x: center.x - window.innerWidth/2 - 100}, interval);
+			stage.addChild(tmp);
+			node = { circle: tmp, mode:0};
+			queue.push(node);
 			break;
 		case "3":
 			console.log("right");
+			tmp = new createjs.Shape();
+			tmp.graphics.beginFill("Blue").drawCircle(0, 0, 50);
+			tmp.x = center.x;
+			tmp.y = center.y;
+			createjs.Tween.get(tmp).to({x: center.x + window.innerWidth/2 + 100}, interval);
+			stage.addChild(tmp);
+			node = { circle: tmp, mode:2};
+			queue.push(node);
+			break;
 		}
 
 	}
+}
+
+function checkEdge(node) {
+	if ( node == undefined ){
+		return false;
+	}
+	let mode = node.mode;
+	let flg = false;
+	switch (mode) {
+		case 0:
+			if ( node.circle.x < 0 ) {
+				return true;
+			}
+			break;
+		case 1:
+			if ( node.circle.y < 0 ) {
+				return true;
+			}
+			break;
+		case 2:
+			if ( node.circle.x > window.innerWidth ) {
+				return true;
+			}
+			break;
+		case 3:
+			if ( node.circle.y > window.innerHeight ) {
+				return true;
+			}
+			break;
+	}
+
+	return
 }
 
 function init() {
@@ -386,9 +457,9 @@ function viewSetting() {
 	// circleUp=getCircle("up");
 	// let node = { circle:getCircle("up"), mode:1};
 	// queue.push(node);
-	circleDown=getCircle("down");
-	circleLeft=getCircle("left");
-	circleRight=getCircle("right");
+	// circleDown=getCircle("down");
+	// circleLeft=getCircle("left");
+	// circleRight=getCircle("right");
 
 
 	hitPadList[0] = new HitPad(75, window.innerHeight/2);
@@ -447,7 +518,7 @@ function comboEffect(circle, hitPad, coord) {
 
 	var perfect = 20;
 	var good = 40;
-	if(coord=="x") {
+	if(coord == "x" ) {
 		if(circle.x<=hitPad.x+perfect && circle.x>=hitPad.x-perfect) {
 			stage.addChild(perfectCombo);
 			createjs.Tween.get(perfectCombo).wait(500).call( removeComboEffect );
@@ -469,7 +540,7 @@ function comboEffect(circle, hitPad, coord) {
 			createjs.Tween.get(missCombo).wait(500).call( removeComboEffect );
 		}
 	}
-	else if(coord=="y") {
+	else if(coord == "y" ) {
 		if(circle.y<=hitPad.y+perfect && circle.y>=hitPad.y-perfect) {
 			stage.addChild(perfectCombo);
 			createjs.Tween.get(perfectCombo).wait(500).call( removeComboEffect );
@@ -503,50 +574,56 @@ document.onkeydown = function(e) {
 	let ptr = e.keyCode - 37;
 	hitPadList[ptr].shadow = null;
 	if ( ptr % 2 ) {
-		comboEffect(queue[0].circle, hitPadList[ptr], "y");
+		if ( queue[0] != undefined && comboEffect(queue[0].circle, hitPadList[ptr], "y") ) {
+			stage.removeChild(queue[0].circle);
+			queue.shift();
+		}
 	}
 	else {
-		comboEffect(circleLeft, hitPadList[ptr], "x")
+		if ( queue[0] != undefined && comboEffect(queue[0].circle, hitPadList[ptr], "x") ) {
+			stage.removeChild(queue[0].circle);
+			queue.shift();
+		}
 	}
 	switch(e.keyCode) {
-		case 37:
-			// console.log("left");
-			// hitPadList[0].shadow = null;
-			// comboEffect(circleLeft, hitPadList[0], "x")
-			/*if( comboEffect(circleLeft, hitPadLeft, "x") ) {
-				stage.removeChild(circleLeft);
-				circleLeft = null;
-			}*/
-			break;
-		case 38:
-			// console.log("up");
-			// hitPadList[1].shadow = null;
-			// comboEffect(circleUp, hitPadList[1], "y");
-			// hitPadUp.shadow = null;
-			// comboEffect(circleUp, hitPadUp, "y");
-			/*if( comboEffect(circleUp, hitPadUp, "y") ) {
-				stage.removeChild(circleUp);
-				circleUp = null;
-			}*/
-			break;
-		case 39:
-			console.log("right");
-			hitPadList[2].shadow = null;
-			comboEffect(circleRight, hitPadList[2], "x");
-			/*if( comboEffect(circleRight, hitPadRight, "x") ) {
-				stage.removeChild(circleRight);
-				circleRight = null;
-			}*/
-			break;
-		case 40:
-			console.log("down");
-			hitPadList[3].shadow = null;
-			comboEffect(circleDown, hitPadList[3], "y");
-			/*if( comboEffect(circleDown, hitPadDown, "y") ) {
-				stage.removeChild(circleDown);
-				circleDown = null;
-			}*/
-			break;
+		// case 37:
+		// 	console.log("left");
+		// 	// hitPadList[0].shadow = null;
+		// 	// comboEffect(circleLeft, hitPadList[0], "x")
+		// 	/*if( comboEffect(circleLeft, hitPadLeft, "x") ) {
+		// 		stage.removeChild(circleLeft);
+		// 		circleLeft = null;
+		// 	}*/
+		// 	break;
+		// case 38:
+		// 	console.log("up");
+		// 	// hitPadList[1].shadow = null;
+		// 	// comboEffect(circleUp, hitPadList[1], "y");
+		// 	// hitPadUp.shadow = null;
+		// 	// comboEffect(circleUp, hitPadUp, "y");
+		// 	/*if( comboEffect(circleUp, hitPadUp, "y") ) {
+		// 		stage.removeChild(circleUp);
+		// 		circleUp = null;
+		// 	}*/
+		// 	break;
+		// case 39:
+		// 	console.log("right");
+		// 	// hitPadList[2].shadow = null;
+		// 	// comboEffect(circleRight, hitPadList[2], "x");
+		// 	/*if( comboEffect(circleRight, hitPadRight, "x") ) {
+		// 		stage.removeChild(circleRight);
+		// 		circleRight = null;
+		// 	}*/
+		// 	break;
+		// case 40:
+		// 	console.log("down");
+		// 	// hitPadList[3].shadow = null;
+		// 	// comboEffect(circleDown, hitPadList[3], "y");
+		// 	/*if( comboEffect(circleDown, hitPadDown, "y") ) {
+		// 		stage.removeChild(circleDown);
+		// 		circleDown = null;
+		// 	}*/
+		// 	break;
 	}
 };
 
