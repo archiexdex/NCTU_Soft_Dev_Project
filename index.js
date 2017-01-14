@@ -514,7 +514,7 @@ function updateScore(hit) {
 		playerScore.text = parseInt(playerScore.text + 1);
 	}
 	totalHit++;
-	completeRate.text = Math.floor((totalHit/songContent[2].split(",").length)*10000)/100 + "%";
+	completeRate.text = Math.floor((totalHit/songContent[3].split(",").length)*10000)/100 + "%";
 }
 function comboEffect(circle, hitPad, coord) {
 
