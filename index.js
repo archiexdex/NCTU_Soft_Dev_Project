@@ -87,6 +87,7 @@ worker.onmessage = function(e) {
 			// stage.removeChild(ptr);
 			tmp = new createjs.Shape();
 			tmp.graphics.beginFill("Crimson").drawCircle(0, 0, 50);
+			tmp.alpha=0.5;
 			tmp.x = center.x;
 			tmp.y = center.y;console.log(window.innerHeight/2);console.log("@@@@");
 			createjs.Tween.get(tmp).to({y: center.y - window.innerHeight/2 - 100}, interval);
@@ -106,6 +107,7 @@ worker.onmessage = function(e) {
 			console.log("down");
 			tmp = new createjs.Shape();
 			tmp.graphics.beginFill("Yellow").drawCircle(0, 0, 50);
+			tmp.alpha=0.5;
 			tmp.x = center.x;
 			tmp.y = center.y;
 			createjs.Tween.get(tmp).to({y: center.y + window.innerHeight/2 + 100 }, interval);
@@ -118,6 +120,7 @@ worker.onmessage = function(e) {
 			console.log("left");
 			tmp = new createjs.Shape();
 			tmp.graphics.beginFill("Green").drawCircle(0, 0, 50);
+			tmp.alpha=0.5;
 			tmp.x = center.x;
 			tmp.y = center.y;
 			createjs.Tween.get(tmp).to({x: center.x - window.innerWidth/2 - 100}, interval);
@@ -129,6 +132,7 @@ worker.onmessage = function(e) {
 			console.log("right");
 			tmp = new createjs.Shape();
 			tmp.graphics.beginFill("Blue").drawCircle(0, 0, 50);
+			tmp.alpha=0.5;
 			tmp.x = center.x;
 			tmp.y = center.y;
 			createjs.Tween.get(tmp).to({x: center.x + window.innerWidth/2 + 100}, interval);
