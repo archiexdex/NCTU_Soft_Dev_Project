@@ -10,10 +10,10 @@ let heldKeys = {};
 let center = { 'x' : window.innerWidth/2, 'y' : window.innerHeight/2};
 let interval = 1000;
 let queue = [];
-
+let LV = 0;
 
 var song = [];
-var worker = new Worker('worker.js');
+var worker = new Worker('./model/worker.js');
 var songSelected = 0;
 var songContent;
 var MainView = new createjs.Container();
@@ -81,15 +81,16 @@ worker.onmessage = function(e) {
 	else {
 
 		let tmp = 0 , node = 0;
-		switch(e.data) {
-		case "0":
+		let xd = parseInt(e.data) % LV;
+		switch(xd) {
+		case 0:
 			console.log("up");
 			// stage.removeChild(ptr);
 			tmp = new createjs.Shape();
 			tmp.graphics.beginFill("Crimson").drawCircle(0, 0, 50);
 			tmp.alpha=0.5;
 			tmp.x = center.x;
-			tmp.y = center.y;console.log(window.innerHeight/2);console.log("@@@@");
+			tmp.y = center.y;console.log(window.innerHeight/2);
 			createjs.Tween.get(tmp).to({y: center.y - window.innerHeight/2 - 100}, interval);
 			stage.addChild(tmp);
 			node = { circle: tmp, mode:1};
@@ -103,7 +104,7 @@ worker.onmessage = function(e) {
 			// createjs.Tween.get(circleUp).to({y: -100}, interval);
 			// stage.addChild(circleUp);
 			break;
-		case "1":
+		case 1:
 			console.log("down");
 			tmp = new createjs.Shape();
 			tmp.graphics.beginFill("Yellow").drawCircle(0, 0, 50);
@@ -116,7 +117,7 @@ worker.onmessage = function(e) {
 			queue.push(node);
 
 			break;
-		case "2":
+		case 2:
 			console.log("left");
 			tmp = new createjs.Shape();
 			tmp.graphics.beginFill("Green").drawCircle(0, 0, 50);
@@ -128,7 +129,7 @@ worker.onmessage = function(e) {
 			node = { circle: tmp, mode:0};
 			queue.push(node);
 			break;
-		case "3":
+		case 3:
 			console.log("right");
 			tmp = new createjs.Shape();
 			tmp.graphics.beginFill("Blue").drawCircle(0, 0, 50);
@@ -151,6 +152,7 @@ function checkEdge(node) {
 	}
 	let mode = node.mode;
 	let flg = false;
+	mode = mode % LV;
 	switch (mode) {
 		case 0:
 			if ( node.circle.x < 0 ) {
@@ -289,8 +291,10 @@ function selectPage(){
 	var diff = [];
 	diff[0] = diff_easy.create();
 	diff[1] = diff_middle.create();
-	diff[2] = diff_hard.create();
-	diff[3] = diff_hell.create();
+	// diff[2] = diff_hard.create();
+	// diff[3] = diff_hell.create();
+
+
 
 	diff[0][0].addEventListener("mouseover", function() {
 		createjs.Tween.get(diff[0][0]).to({y:-40}, 200);
@@ -298,6 +302,10 @@ function selectPage(){
 		createjs.Tween.get(diff[i][0]).to({y:0}, 200);
 		}
 	});
+
+	diff[0][0].on("click", function(){
+		LV = 2;
+	}, this);
 
 	diff[1][0].addEventListener("mouseover", function() {
 		createjs.Tween.get(diff[1][0]).to({y:-40}, 200);
@@ -307,20 +315,24 @@ function selectPage(){
 		}
 	});
 
-	diff[2][0].addEventListener("mouseover", function() {
-		createjs.Tween.get(diff[2][0]).to({y:-40}, 200);
-		for(var i=0;i<2;i++){
-		createjs.Tween.get(diff[i][0]).to({y:0}, 200);
-		}
-		createjs.Tween.get(diff[3][0]).to({y:0}, 200);
-	});
+	diff[1][0].on("click", function(){
+		LV = 4;
+	}, this);
 
-	diff[3][0].addEventListener("mouseover", function() {
-		createjs.Tween.get(diff[3][0]).to({y:-40}, 200);
-		for(var i=0;i<3;i++){
-		createjs.Tween.get(diff[i][0]).to({y:0}, 200);
-		}
-	});
+	// diff[2][0].addEventListener("mouseover", function() {
+	// 	createjs.Tween.get(diff[2][0]).to({y:-40}, 200);
+	// 	for(var i=0;i<2;i++){
+	// 	createjs.Tween.get(diff[i][0]).to({y:0}, 200);
+	// 	}
+	// 	createjs.Tween.get(diff[3][0]).to({y:0}, 200);
+	// });
+	//
+	// diff[3][0].addEventListener("mouseover", function() {
+	// 	createjs.Tween.get(diff[3][0]).to({y:-40}, 200);
+	// 	for(var i=0;i<3;i++){
+	// 	createjs.Tween.get(diff[i][0]).to({y:0}, 200);
+	// 	}
+	// });
 
 	//song select
 
@@ -406,9 +418,8 @@ function selectPage(){
 	play_text.shadow = new createjs.Shadow("#f44295", 0, 5, 10);
 	SelectView.addChild(play_text, play);
 	var i;
-	for(i=0;i<diff.length;i++) {
-		SelectView.addChild(diff[i][0], diff[i][1])
-	}
+	SelectView.addChild(diff[0][0], diff[0][1]);
+	SelectView.addChild(diff[1][0], diff[1][1]);
 	for(i=0;i<songObj.length;i++) {
 		SelectView.addChild(songObj[i][0], songObj[i][1]);
 	}
@@ -465,11 +476,19 @@ function viewSetting() {
 	// circleLeft=getCircle("left");
 	// circleRight=getCircle("right");
 
+	if ( LV == 2){
+		hitPadList[0] = undefined;
+		hitPadList[1] = new HitPad(window.innerWidth/2, 75);
+		hitPadList[2] = undefined;
+		hitPadList[3] = new HitPad(window.innerWidth/2, window.innerHeight-95);
+	}
+	else {
+		hitPadList[0] = new HitPad(75, window.innerHeight/2);
+		hitPadList[1] = new HitPad(window.innerWidth/2, 75);
+		hitPadList[2] = new HitPad(window.innerWidth-95, window.innerHeight/2);
+		hitPadList[3] = new HitPad(window.innerWidth/2, window.innerHeight-95);
+	}
 
-	hitPadList[0] = new HitPad(75, window.innerHeight/2);
-	hitPadList[1] = new HitPad(window.innerWidth/2, 75);
-	hitPadList[2] = new HitPad(window.innerWidth-95, window.innerHeight/2);
-	hitPadList[3] = new HitPad(window.innerWidth/2, window.innerHeight-95);
 
 	// hitPadUp = new HitPad(window.innerWidth/2, 75);
 	// hitPadDown = new HitPad(window.innerWidth/2, window.innerHeight-95);
@@ -486,6 +505,7 @@ function viewSetting() {
 
 	perfectCombo = new ComboEffect('Perfect');
 	goodCombo = new ComboEffect('Good');
+	xdCombo = new ComboEffect('XD');
 	missCombo = new ComboEffect('Miss');
 
 	MainView.addChild(playerScore, completeRate);
@@ -500,6 +520,7 @@ function viewSetting() {
 function removeComboEffect() {
 	stage.removeChild(perfectCombo);
 	stage.removeChild(goodCombo);
+	stage.removeChild(xdCombo);
 	stage.removeChild(missCombo);
 }
 
@@ -510,7 +531,7 @@ function updateScore(hit) {
 	else if(hit=="good") {
 		playerScore.text = parseInt(playerScore.text + 2);
 	}
-	else if(hit=="normal") {
+	else if(hit=="xd") {
 		playerScore.text = parseInt(playerScore.text + 1);
 	}
 	totalHit++;
@@ -520,50 +541,58 @@ function comboEffect(circle, hitPad, coord) {
 
 	removeComboEffect();
 
-	var perfect = 20;
-	var good = 40;
+	var perfect = 25;
+	var good = 45;
 	if(coord == "x" ) {
-		if(circle.x<=hitPad.x+perfect && circle.x>=hitPad.x-perfect) {
+		// if(circle.x<=hitPad.x+perfect && circle.x>=hitPad.x-perfect) {
+		if ( Math.abs(circle.x - hitPad.x) <= perfect ){
 			stage.addChild(perfectCombo);
 			createjs.Tween.get(perfectCombo).wait(500).call( removeComboEffect );
 			updateScore("perfect");
 			return true;
 		}
-		else if(circle.x<=hitPad.x+good && circle.x>=hitPad.x-good) {
+		// else if(circle.x<=hitPad.x+good && circle.x>=hitPad.x-good) {
+		else if( Math.abs(circle.x - hitPad.x) <= good) {
 			stage.addChild(goodCombo);
 			createjs.Tween.get(goodCombo).wait(500).call( removeComboEffect );
 			updateScore("good");
 			return true;
 		}
 		else if(circle.x+circleRadius>=hitPad.x-hitPadRadius && circle.x-circleRadius<=hitPad.x+hitPadRadius) {	//normal
-			updateScore("normal");
+			stage.addChild(xdCombo);
+			updateScore("xd");
+			createjs.Tween.get(xdCombo).wait(500).call( removeComboEffect );
 			return true;
 		}
 		else {	//miss
 			stage.addChild(missCombo);
 			createjs.Tween.get(missCombo).wait(500).call( removeComboEffect );
+			// return true;
 		}
 	}
 	else if(coord == "y" ) {
-		if(circle.y<=hitPad.y+perfect && circle.y>=hitPad.y-perfect) {
+		if ( Math.abs(circle.y - hitPad.y) <= perfect ){
 			stage.addChild(perfectCombo);
 			createjs.Tween.get(perfectCombo).wait(500).call( removeComboEffect );
 			updateScore("perfect");
 			return true;
 		}
-		else if(circle.y<=hitPad.y+good && circle.y>=hitPad.y-good) {
-			stage.addChild(missCombo);
-			createjs.Tween.get(missCombo).wait(500).call( removeComboEffect );
+		else if( Math.abs(circle.y - hitPad.y) <= good) {
+			stage.addChild(goodCombo);
+			createjs.Tween.get(goodCombo).wait(500).call( removeComboEffect );
 			updateScore("good");
 			return true;
 		}
 		else if(circle.y+circleRadius>=hitPad.y-hitPadRadius && circle.y-circleRadius<=hitPad.y+hitPadRadius) {	//normal
-			updateScore("normal");
+			stage.addChild(xdCombo);
+			updateScore("xd");
+			createjs.Tween.get(xdCombo).wait(500).call( removeComboEffect );
 			return true;
 		}
 		else {	//miss
-			stage.addChild(goodCombo);
-			createjs.Tween.get(goodCombo).wait(500).call( removeComboEffect );
+			stage.addChild(missCombo);
+			createjs.Tween.get(missCombo).wait(500).call( removeComboEffect );
+			// return true;
 		}
 	}
 	return false;
