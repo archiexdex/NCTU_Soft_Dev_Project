@@ -88,7 +88,6 @@ worker.onmessage = function(e) {
 		switch(xd) {
 		case 2:
 			console.log("up");
-			// stage.removeChild(ptr);
 			tmp = new createjs.Shape();
 			tmp.graphics.beginFill("Crimson").drawCircle(0, 0, 50);
 			tmp.alpha=0.5;
@@ -551,24 +550,24 @@ function comboEffect(circle, hitPad, coord) {
 	var good = 45;
 	if(coord == "x" ) {
 		if( hitPad.x == 75 ) {
-			perfectCombo.x = hitPad.x - 30;
-			perfectCombo.y = hitPad.y + 60;
-			goodCombo.x = hitPad.x - 30;
-			goodCombo.y = hitPad.y + 60;
-			xdCombo.x = hitPad.x - 30;
-			xdCombo.y = hitPad.y + 60;
-			missCombo.x = hitPad.x - 30;
-			missCombo.y = hitPad.y + 60;
+			perfectCombo.x = hitPad.x - 40;
+			perfectCombo.y = hitPad.y + 70;
+			goodCombo.x = hitPad.x - 40;
+			goodCombo.y = hitPad.y + 70;
+			xdCombo.x = hitPad.x - 40;
+			xdCombo.y = hitPad.y + 70;
+			missCombo.x = hitPad.x - 40;
+			missCombo.y = hitPad.y + 70;
 		}
 		else {
-			perfectCombo.x = hitPad.x - 200;
-			perfectCombo.y = hitPad.y + 60;
-			goodCombo.x = hitPad.x - 200;
-			goodCombo.y = hitPad.y + 60;
-			xdCombo.x = hitPad.x - 200;
-			xdCombo.y = hitPad.y + 60;
-			missCombo.x = hitPad.x - 200;
-			missCombo.y = hitPad.y + 60;
+			perfectCombo.x = hitPad.x - 70;
+			perfectCombo.y = hitPad.y + 70;
+			goodCombo.x = hitPad.x - 70;
+			goodCombo.y = hitPad.y + 70;
+			xdCombo.x = hitPad.x - 70;
+			xdCombo.y = hitPad.y + 70;
+			missCombo.x = hitPad.x - 70;
+			missCombo.y = hitPad.y + 70;
 		}
 		if ( Math.abs(circle.x - hitPad.x) <= perfect ){
 			stage.addChild(perfectCombo);
@@ -599,24 +598,24 @@ function comboEffect(circle, hitPad, coord) {
 	}
 	else if(coord == "y" ) {
 		if( hitPad.y == 75 ) {
-			perfectCombo.x = hitPad.x - 30;
-			perfectCombo.y = hitPad.y + 60;
-			goodCombo.x = hitPad.x - 30;
-			goodCombo.y = hitPad.y + 60;
-			xdCombo.x = hitPad.x - 30;
-			xdCombo.y = hitPad.y + 60;
-			missCombo.x = hitPad.x - 30;
-			missCombo.y = hitPad.y + 60;
+			perfectCombo.x = hitPad.x - 40;
+			perfectCombo.y = hitPad.y + 70;
+			goodCombo.x = hitPad.x - 40;
+			goodCombo.y = hitPad.y + 70;
+			xdCombo.x = hitPad.x - 40;
+			xdCombo.y = hitPad.y + 70;
+			missCombo.x = hitPad.x - 40;
+			missCombo.y = hitPad.y + 70;
 		}
 		else {
-			perfectCombo.x = hitPad.x - 30;
-			perfectCombo.y = hitPad.y - 120;
-			goodCombo.x = hitPad.x - 30;
-			goodCombo.y = hitPad.y - 120;
-			xdCombo.x = hitPad.x - 30;
-			xdCombo.y = hitPad.y - 120;
-			missCombo.x = hitPad.x - 30;
-			missCombo.y = hitPad.y - 120;
+			perfectCombo.x = hitPad.x - 40;
+			perfectCombo.y = hitPad.y - 100;
+			goodCombo.x = hitPad.x - 40;
+			goodCombo.y = hitPad.y - 100;
+			xdCombo.x = hitPad.x - 40;
+			xdCombo.y = hitPad.y - 100;
+			missCombo.x = hitPad.x - 40;
+			missCombo.y = hitPad.y - 100;
 		}
 		if ( Math.abs(circle.y - hitPad.y) <= perfect ){
 			stage.addChild(perfectCombo);
