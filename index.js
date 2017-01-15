@@ -11,6 +11,10 @@ let queue = [];
 let LV = 4;
 let nowCombo = 0;
 let maxCombo = 0;
+let nowComboText;
+let maxComboText;
+let maxComboValue;
+let finalRank;
 
 var song = [];
 var worker = new Worker('./model/worker.js');
@@ -42,7 +46,6 @@ var rank_list;
 var SelectView = new createjs.Container();
 
 
-
 function readTextFile(file) {
 	var rawFile = new XMLHttpRequest();
 	rawFile.open("GET", file, false);
@@ -64,6 +67,7 @@ setInterval("checkQueue()", 100);
 function checkQueue() {
 	for (let i = 0 ; i < queue.length ; i++) {
 		if ( checkEdge(queue[i]) ) {
+			nowComboText.text = 0;
 			stage.removeChild(queue[i]);
 			queue.shift();
 		}
@@ -209,23 +213,60 @@ function init() {
 
 function addFinalScoreView() {
 	finalScoreText = new createjs.Text('Final Score', 'bold 50px Arial', '#0099CC');
-	finalScoreText.x = window.innerWidth/2- finalScoreText.getMeasuredWidth();
+	finalScoreText.x = window.innerWidth/2 - finalScoreText.getMeasuredWidth();
 	finalScoreText.y = 100;
 	finalScoreValue = new createjs.Text(playerScore.text, 'bold 50px Arial', '#0099CC');
-	finalScoreValue.x = window.innerWidth/2	+100;
+	finalScoreValue.x = window.innerWidth/2	+ 100;
 	finalScoreValue.y = 100;
+	
 	completeRateText = new createjs.Text('Complete Rate', 'bold 50px Arial', '#0099CC');
-	completeRateText.x = window.innerWidth/2- completeRateText.getMeasuredWidth();
-	completeRateText.y = 300;
+	completeRateText.x = window.innerWidth/2 - completeRateText.getMeasuredWidth();
+	completeRateText.y = 250;
 	completeRateValue = new createjs.Text(completeRate.text, 'bold 50px Arial', '#0099CC');
-	completeRateValue.x = window.innerWidth/2+100;
-	completeRateValue.y = 300;
+	completeRateValue.x = window.innerWidth/2 + 100;
+	completeRateValue.y = 250;
+	
 	playAgainButton = new createjs.Text('Play Again', 'bold 50px Arial', '#0066CC');
-	playAgainButton.x = window.innerWidth/2- playAgainButton.getMeasuredWidth()/2;
-	playAgainButton.y = 500;
-	FinalView.addChild(finalScoreText, finalScoreValue, completeRateText, completeRateValue, playAgainButton);
+	playAgainButton.x = window.innerWidth/2 - playAgainButton.getMeasuredWidth()/2;
+	playAgainButton.y = 550;
+	
+	maxComboText = new createjs.Text('Max Combo', 'bold 50px Arial', '#0099CC');
+	maxComboText.x = window.innerWidth/2 - maxComboText.getMeasuredWidth();
+	maxComboText.y = 400;
+	maxComboValue = new createjs.Text(maxCombo, 'bold 50px Arial', '#0099CC');
+	maxComboValue.x = window.innerWidth/2 + 100;
+	maxComboValue.y = 400;
+	
+	var fullScore = song[songSelected].songContent[3].split(",").length * 3;
+	var finalRankText;
+	if( parseInt(playerScore.text) / fullScore > 0.8 ) {
+		finalRankText = "SS";
+	}
+	else if( parseInt(playerScore.text) / fullScore > 0.7 ) {
+		finalRankText = "S";
+	}
+	else if( parseInt(playerScore.text) / fullScore > 0.6 ) {
+		finalRankText = "A";
+	}
+	else if( parseInt(playerScore.text) / fullScore > 0.5 ) {
+		finalRankText = "B";
+	}
+	else if( parseInt(playerScore.text) / fullScore > 0.4 ) {
+		finalRankText = "C";
+	}
+	else {
+		finalRankText = "F";
+	}
+	finalRank = new createjs.Text(finalRankText, 'bold 500px Arial', '#ff0000');
+	finalRank.alpha = 0.7;
+	finalRank.x = window.innerWidth/2 - 50;
+	finalRank.y = -300;
+	
+	FinalView.addChild(finalScoreText, finalScoreValue, completeRateText, completeRateValue, maxComboText, maxComboValue, playAgainButton, finalRank);
 	stage.addChild(FinalView);
-
+	
+	createjs.Tween.get(finalRank).to({y:window.innerHeight/2 - finalRank.getMeasuredHeight()/2}, 1000);
+	
 	playAgainButton.on("click", function(event){
 		stage.removeChild(FinalView);
 		location.reload();
@@ -286,9 +327,7 @@ function selectPage(){
 
 	diff[0][0].addEventListener("mouseover", function() {
 		createjs.Tween.get(diff[0][0]).to({y:-40}, 200);
-		for(var i=1;i<4;i++){
-		createjs.Tween.get(diff[i][0]).to({y:0}, 200);
-		}
+		createjs.Tween.get(diff[1][0]).to({y:0}, 200);
 	});
 
 	diff[0][0].on("click", function(){
@@ -296,18 +335,13 @@ function selectPage(){
 	}, this);
 
 	diff[1][0].addEventListener("mouseover", function() {
-		createjs.Tween.get(diff[1][0]).to({y:-40}, 200);
 		createjs.Tween.get(diff[0][0]).to({y:0}, 200);
-		for(var i=2;i<4;i++){
-		createjs.Tween.get(diff[i][0]).to({y:0}, 200);
-		}
+		createjs.Tween.get(diff[1][0]).to({y:-40}, 200);
 	});
 
 	diff[1][0].on("click", function(){
 		LV = 4;
 	}, this);
-
-
 
 	//song select
 
@@ -344,9 +378,9 @@ function selectPage(){
 		createjs.Tween.get(songObj[0][0]).to({x:0}, 200);
 		createjs.Tween.get(songObj[0][1]).to({x:window.innerWidth-240}, 200);
 		for(var i=2;i<4;i++){
-		createjs.Tween.get(songObj[i][0]).to({x:0}, 200);
-		createjs.Tween.get(songObj[i][1]).to({x:window.innerWidth-240}, 200);
-	}
+			createjs.Tween.get(songObj[i][0]).to({x:0}, 200);
+			createjs.Tween.get(songObj[i][1]).to({x:window.innerWidth-240}, 200);
+		}
 	});
 
 	songObj[2][0].addEventListener("mouseover", function() {
@@ -361,9 +395,9 @@ function selectPage(){
 		createjs.Tween.get(songObj[3][0]).to({x:0}, 200);
 		createjs.Tween.get(songObj[3][1]).to({x:window.innerWidth-240}, 200);
 		for(var i=0;i<2;i++){
-		createjs.Tween.get(songObj[i][0]).to({x:0}, 200);
-		createjs.Tween.get(songObj[i][1]).to({x:window.innerWidth-240}, 200);
-	}
+			createjs.Tween.get(songObj[i][0]).to({x:0}, 200);
+			createjs.Tween.get(songObj[i][1]).to({x:window.innerWidth-240}, 200);
+		}
 	});
 
 	songObj[3][0].addEventListener("mouseover", function() {
@@ -376,9 +410,9 @@ function selectPage(){
 			createjs.Tween.get(songObj[3][1]).to({x:window.innerWidth-290}, 200);
 		}
 		for(var i=0;i<3;i++){
-		createjs.Tween.get(songObj[i][0]).to({x:0}, 200);
-		createjs.Tween.get(songObj[i][1]).to({x:window.innerWidth-240}, 200);
-	}
+			createjs.Tween.get(songObj[i][0]).to({x:0}, 200);
+			createjs.Tween.get(songObj[i][1]).to({x:window.innerWidth-240}, 200);
+		}
 	});
 
 	//Play button
@@ -444,7 +478,6 @@ function getCircle(mode) {
 
 function viewSetting() {
 
-
 	if ( LV == 2){
 		hitPadList[0] = new HitPad(75, window.innerHeight/2);
 		hitPadList[2] = undefined;
@@ -467,12 +500,16 @@ function viewSetting() {
 	completeRate.x = window.innerWidth/2+240;
 	completeRate.y = 20;
 
+	nowComboText = new createjs.Text('0', 'bold 100px Arial', '#A3FF24');
+	nowComboText.x = window.innerWidth/2 - 100;
+	nowComboText.y = window.innerHeight/2 - 50;
+	
 	perfectCombo = new ComboEffect('Perfect');
 	goodCombo = new ComboEffect('Good');
 	xdCombo = new ComboEffect('XD');
 	missCombo = new ComboEffect('Miss');
 
-	MainView.addChild(playerScore, completeRate);
+	MainView.addChild(playerScore, completeRate, nowComboText);
 	for (var i = 0; i < hitPadList.length; i++) {
 		MainView.addChild(hitPadList[i]);
 	}
@@ -499,7 +536,12 @@ function updateScore(hit) {
 		playerScore.text = parseInt(playerScore.text + 1);
 	}
 	totalHit++;
-	completeRate.text = Math.floor((totalHit/songContent[3].split(",").length)*10000)/100 + "%";
+	completeRate.text = Math.floor((totalHit/song[songSelected].songContent[3].split(",").length)*10000)/100 + "%";
+	
+	nowComboText.text = parseInt(nowComboText.text + 1);
+	if( maxCombo < parseInt(nowComboText.text) ) {
+		maxCombo = parseInt(nowComboText.text);
+	}
 }
 function comboEffect(circle, hitPad, coord) {
 
@@ -549,7 +591,7 @@ function comboEffect(circle, hitPad, coord) {
 			return true;
 		}
 		else {	//miss
-			
+			nowComboText.text = 0;
 			stage.addChild(missCombo);
 			createjs.Tween.get(missCombo).wait(500).call( removeComboEffect );
 			// return true;
@@ -595,6 +637,7 @@ function comboEffect(circle, hitPad, coord) {
 			return true;
 		}
 		else {	//miss
+			nowComboText.text = 0;
 			stage.addChild(missCombo);
 			createjs.Tween.get(missCombo).wait(500).call( removeComboEffect );
 			// return true;
