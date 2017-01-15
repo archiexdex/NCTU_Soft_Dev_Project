@@ -274,11 +274,11 @@ function selectPage(){
 
 	//rank list tmp;
 
-	var rank_list_1=rankText('Jack',1);
-	var rank_list_2=rankText('Nicolas',2);
-	var rank_list_3=rankText('Carol',3);
-	var rank_list_4=rankText('Nina',4);
-	var rank_list_5=rankText('Kathy',5);
+	var rank_list_1=rankText('TO',1);
+	var rank_list_2=rankText('BE',2);
+	var rank_list_3=rankText('CONTINUED',3);
+	var rank_list_4=rankText('XD',4);
+	var rank_list_5=rankText('QAQ',5);
 
 	SelectView.addChild(rank,rank_name,rank_list_1,rank_list_2,rank_list_3,rank_list_4,rank_list_5);
 
