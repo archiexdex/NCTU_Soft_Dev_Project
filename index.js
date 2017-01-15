@@ -2,7 +2,6 @@ let stage;
 let playerScore, completeRate, missCombo, perfectCombo, goodCombo;
 // let GM = new GameManager('Circle.js');
 let hitPadList = [];
-// let hitPadUp, hitPadDown, hitPadLeft, hitPadRight;
 let circleWay = { 0:"left", 1:"right", 2:"up", 3:"down" };
 let circleRadius = 50, hitPadRadius = 60;
 let heldKeys = {};
@@ -63,7 +62,6 @@ function readTextFile(file) {
 
 setInterval("checkQueue()", 100);
 function checkQueue() {
-	// console.log("QQQQQQQWQWQWQWQ");
 	for (let i = 0 ; i < queue.length ; i++) {
 		if ( checkEdge(queue[i]) ) {
 			stage.removeChild(queue[i]);
@@ -285,10 +283,6 @@ function selectPage(){
 	var diff = [];
 	diff[0] = diff_easy.create();
 	diff[1] = diff_middle.create();
-	// diff[2] = diff_hard.create();
-	// diff[3] = diff_hell.create();
-
-
 
 	diff[0][0].addEventListener("mouseover", function() {
 		createjs.Tween.get(diff[0][0]).to({y:-40}, 200);
@@ -514,33 +508,74 @@ function comboEffect(circle, hitPad, coord) {
 	var perfect = 25;
 	var good = 45;
 	if(coord == "x" ) {
-		// if(circle.x<=hitPad.x+perfect && circle.x>=hitPad.x-perfect) {
+		if( hitPad.x == 75 ) {
+			perfectCombo.x = hitPad.x - 30;
+			perfectCombo.y = hitPad.y + 60;
+			goodCombo.x = hitPad.x - 30;
+			goodCombo.y = hitPad.y + 60;
+			xdCombo.x = hitPad.x - 30;
+			xdCombo.y = hitPad.y + 60;
+			missCombo.x = hitPad.x - 30;
+			missCombo.y = hitPad.y + 60;
+		}
+		else {
+			perfectCombo.x = hitPad.x - 200;
+			perfectCombo.y = hitPad.y + 60;
+			goodCombo.x = hitPad.x - 200;
+			goodCombo.y = hitPad.y + 60;
+			xdCombo.x = hitPad.x - 200;
+			xdCombo.y = hitPad.y + 60;
+			missCombo.x = hitPad.x - 200;
+			missCombo.y = hitPad.y + 60;
+		}
 		if ( Math.abs(circle.x - hitPad.x) <= perfect ){
 			stage.addChild(perfectCombo);
 			createjs.Tween.get(perfectCombo).wait(500).call( removeComboEffect );
 			updateScore("perfect");
 			return true;
 		}
-		// else if(circle.x<=hitPad.x+good && circle.x>=hitPad.x-good) {
 		else if( Math.abs(circle.x - hitPad.x) <= good) {
+			
 			stage.addChild(goodCombo);
 			createjs.Tween.get(goodCombo).wait(500).call( removeComboEffect );
 			updateScore("good");
 			return true;
 		}
 		else if(circle.x+circleRadius>=hitPad.x-hitPadRadius && circle.x-circleRadius<=hitPad.x+hitPadRadius) {	//normal
+			
 			stage.addChild(xdCombo);
-			updateScore("xd");
 			createjs.Tween.get(xdCombo).wait(500).call( removeComboEffect );
+			updateScore("xd");
 			return true;
 		}
 		else {	//miss
+			
 			stage.addChild(missCombo);
 			createjs.Tween.get(missCombo).wait(500).call( removeComboEffect );
 			// return true;
 		}
 	}
 	else if(coord == "y" ) {
+		if( hitPad.y == 75 ) {
+			perfectCombo.x = hitPad.x - 30;
+			perfectCombo.y = hitPad.y + 60;
+			goodCombo.x = hitPad.x - 30;
+			goodCombo.y = hitPad.y + 60;
+			xdCombo.x = hitPad.x - 30;
+			xdCombo.y = hitPad.y + 60;
+			missCombo.x = hitPad.x - 30;
+			missCombo.y = hitPad.y + 60;
+		}
+		else {
+			perfectCombo.x = hitPad.x - 30;
+			perfectCombo.y = hitPad.y - 120;
+			goodCombo.x = hitPad.x - 30;
+			goodCombo.y = hitPad.y - 120;
+			xdCombo.x = hitPad.x - 30;
+			xdCombo.y = hitPad.y - 120;
+			missCombo.x = hitPad.x - 30;
+			missCombo.y = hitPad.y - 120;
+		}
 		if ( Math.abs(circle.y - hitPad.y) <= perfect ){
 			stage.addChild(perfectCombo);
 			createjs.Tween.get(perfectCombo).wait(500).call( removeComboEffect );
@@ -574,20 +609,6 @@ document.onkeydown = function(e) {
 		return;
 	}
 	heldKeys[e.keyCode] = true;
-	// let ptr = e.keyCode - 37;
-	// hitPadList[ptr].shadow = null;
-	// if ( ptr % 2 ) {
-	// 	if ( queue[0] != undefined && comboEffect(queue[0].circle, hitPadList[ptr], "y") ) {
-	// 		stage.removeChild(queue[0].circle);
-	// 		queue.shift();
-	// 	}
-	// }
-	// else {
-	// 	if ( queue[0] != undefined && comboEffect(queue[0].circle, hitPadList[ptr], "x") ) {
-	// 		stage.removeChild(queue[0].circle);
-	// 		queue.shift();
-	// 	}
-	// }
 	switch(e.keyCode) {
 		case 37:
 			hitPadList[0].shadow = null;
@@ -598,14 +619,14 @@ document.onkeydown = function(e) {
 			break;
 		case 38:
 			hitPadList[2].shadow = null;
-			if ( queue[0] != undefined && comboEffect(queue[0].circle, hitPadList[2], "x") ) {
+			if ( queue[0] != undefined && comboEffect(queue[0].circle, hitPadList[2], "y") ) {
 				stage.removeChild(queue[0].circle);
 				queue.shift();
 			}
 			break;
 		case 39:
 			hitPadList[1].shadow = null;
-			if ( queue[0] != undefined && comboEffect(queue[0].circle, hitPadList[1], "y") ) {
+			if ( queue[0] != undefined && comboEffect(queue[0].circle, hitPadList[1], "x") ) {
 				stage.removeChild(queue[0].circle);
 				queue.shift();
 			}
