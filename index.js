@@ -62,7 +62,7 @@ function readTextFile(file) {
 
 setInterval("checkQueue()", 100);
 function checkQueue() {
-	console.log("QQQQQQQWQWQWQWQ");
+	// console.log("QQQQQQQWQWQWQWQ");
 	for (let i = 0 ; i < queue.length ; i++) {
 		if ( checkEdge(queue[i]) ) {
 			stage.removeChild(queue[i]);
@@ -186,7 +186,7 @@ function init() {
 	readTextFile("source/Natsumatsuri.txt");
 	song[2] = new Song(2, "夏祭り", "source/Natsumatsuri.mp3", "Natsumatsuri Part", "source/Natsumatsuri_Part.mp3", songContent);
 
-	song[3] = new Song(3, "Hellhold", "source/Seasons_of_Asia.mp3", "Seasons of Asia Part", "source/Seasons_of_Asia_Part.mp3", songContent);
+	song[3] = new Song(3, "To be continue", "", "", "", songContent);
 
 	stage = new createjs.Stage("demoCanvas");
 	stage.canvas.width = window.innerWidth-20;
@@ -476,12 +476,12 @@ function viewSetting() {
 	// hitPadLeft = new HitPad(75, window.innerHeight/2);
 	// hitPadRight = new HitPad(window.innerWidth-95, window.innerHeight/2);
 
-	playerScore = new createjs.Text('0', 'bold 20px Arial', '#A3FF24');
-	playerScore.x = window.innerWidth/2- playerScore.getMeasuredWidth() -300;
+	playerScore = new createjs.Text('0', 'bold 50px Arial', '#4B0082');
+	playerScore.x = window.innerWidth/2- playerScore.getMeasuredWidth() -250;
 	playerScore.y = 20;
 
-	completeRate = new createjs.Text('0%', 'bold 20px Arial', '#A3FF24');
-	completeRate.x = window.innerWidth/2+300;
+	completeRate = new createjs.Text('0%', 'bold 40px Arial', '#A3FF24');
+	completeRate.x = window.innerWidth/2+240;
 	completeRate.y = 20;
 
 	perfectCombo = new ComboEffect('Perfect');

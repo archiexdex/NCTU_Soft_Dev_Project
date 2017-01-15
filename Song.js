@@ -1,5 +1,8 @@
 class Song {
 	constructor(songNumber, songName, songSource, songPartName, songPartSource, songContent) {
+		if (  songSource == "" ) {
+			return;
+		}
 		this.songNumber = songNumber;
 		this.songName = songName;
 		this.songSource = songSource;
