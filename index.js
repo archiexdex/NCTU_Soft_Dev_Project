@@ -3,14 +3,15 @@ let playerScore, completeRate, missCombo, perfectCombo, goodCombo;
 // let GM = new GameManager('Circle.js');
 let hitPadList = [];
 // let hitPadUp, hitPadDown, hitPadLeft, hitPadRight;
-let circleWay = [];
-let circleUp, circleDown, circleLeft, circleRight;
+let circleWay = { 0:"left", 1:"right", 2:"up", 3:"down" };
 let circleRadius = 50, hitPadRadius = 60;
 let heldKeys = {};
 let center = { 'x' : window.innerWidth/2, 'y' : window.innerHeight/2};
 let interval = 1000;
 let queue = [];
-let LV = 0;
+let LV = 4;
+let nowCombo = 0;
+let maxCombo = 0;
 
 var song = [];
 var worker = new Worker('./model/worker.js');
@@ -83,7 +84,7 @@ worker.onmessage = function(e) {
 		let tmp = 0 , node = 0;
 		let xd = parseInt(e.data) % LV;
 		switch(xd) {
-		case 0:
+		case 2:
 			console.log("up");
 			// stage.removeChild(ptr);
 			tmp = new createjs.Shape();
@@ -95,16 +96,9 @@ worker.onmessage = function(e) {
 			stage.addChild(tmp);
 			node = { circle: tmp, mode:1};
 			queue.push(node);
-			// stage.removeChild(circleUp);
-			// circleUp = null;
-			// circleUp = new createjs.Shape();
-			// circleUp.graphics.beginFill("Crimson").drawCircle(0, 0, 50);
-			// circleUp.x = center.x;
-			// circleUp.y = center.y;
-			// createjs.Tween.get(circleUp).to({y: -100}, interval);
-			// stage.addChild(circleUp);
+
 			break;
-		case 1:
+		case 3:
 			console.log("down");
 			tmp = new createjs.Shape();
 			tmp.graphics.beginFill("Yellow").drawCircle(0, 0, 50);
@@ -117,7 +111,7 @@ worker.onmessage = function(e) {
 			queue.push(node);
 
 			break;
-		case 2:
+		case 0:
 			console.log("left");
 			tmp = new createjs.Shape();
 			tmp.graphics.beginFill("Green").drawCircle(0, 0, 50);
@@ -129,7 +123,7 @@ worker.onmessage = function(e) {
 			node = { circle: tmp, mode:0};
 			queue.push(node);
 			break;
-		case 3:
+		case 1:
 			console.log("right");
 			tmp = new createjs.Shape();
 			tmp.graphics.beginFill("Blue").drawCircle(0, 0, 50);
@@ -159,12 +153,12 @@ function checkEdge(node) {
 				return true;
 			}
 			break;
-		case 1:
+		case 2:
 			if ( node.circle.y < 0 ) {
 				return true;
 			}
 			break;
-		case 2:
+		case 1:
 			if ( node.circle.x > window.innerWidth ) {
 				return true;
 			}
@@ -319,20 +313,7 @@ function selectPage(){
 		LV = 4;
 	}, this);
 
-	// diff[2][0].addEventListener("mouseover", function() {
-	// 	createjs.Tween.get(diff[2][0]).to({y:-40}, 200);
-	// 	for(var i=0;i<2;i++){
-	// 	createjs.Tween.get(diff[i][0]).to({y:0}, 200);
-	// 	}
-	// 	createjs.Tween.get(diff[3][0]).to({y:0}, 200);
-	// });
-	//
-	// diff[3][0].addEventListener("mouseover", function() {
-	// 	createjs.Tween.get(diff[3][0]).to({y:-40}, 200);
-	// 	for(var i=0;i<3;i++){
-	// 	createjs.Tween.get(diff[i][0]).to({y:0}, 200);
-	// 	}
-	// });
+
 
 	//song select
 
@@ -469,31 +450,20 @@ function getCircle(mode) {
 
 function viewSetting() {
 
-	// circleUp=getCircle("up");
-	// let node = { circle:getCircle("up"), mode:1};
-	// queue.push(node);
-	// circleDown=getCircle("down");
-	// circleLeft=getCircle("left");
-	// circleRight=getCircle("right");
 
 	if ( LV == 2){
-		hitPadList[0] = undefined;
-		hitPadList[1] = new HitPad(window.innerWidth/2, 75);
+		hitPadList[0] = new HitPad(75, window.innerHeight/2);
 		hitPadList[2] = undefined;
-		hitPadList[3] = new HitPad(window.innerWidth/2, window.innerHeight-95);
+		hitPadList[1] = new HitPad(window.innerWidth-95, window.innerHeight/2);
+		hitPadList[3] = undefined;
 	}
 	else {
 		hitPadList[0] = new HitPad(75, window.innerHeight/2);
-		hitPadList[1] = new HitPad(window.innerWidth/2, 75);
-		hitPadList[2] = new HitPad(window.innerWidth-95, window.innerHeight/2);
+		hitPadList[2] = new HitPad(window.innerWidth/2, 75);
+		hitPadList[1] = new HitPad(window.innerWidth-95, window.innerHeight/2);
 		hitPadList[3] = new HitPad(window.innerWidth/2, window.innerHeight-95);
 	}
 
-
-	// hitPadUp = new HitPad(window.innerWidth/2, 75);
-	// hitPadDown = new HitPad(window.innerWidth/2, window.innerHeight-95);
-	// hitPadLeft = new HitPad(75, window.innerHeight/2);
-	// hitPadRight = new HitPad(window.innerWidth-95, window.innerHeight/2);
 
 	playerScore = new createjs.Text('0', 'bold 50px Arial', '#4B0082');
 	playerScore.x = window.innerWidth/2- playerScore.getMeasuredWidth() -250;
@@ -604,60 +574,50 @@ document.onkeydown = function(e) {
 		return;
 	}
 	heldKeys[e.keyCode] = true;
-	let ptr = e.keyCode - 37;
-	hitPadList[ptr].shadow = null;
-	if ( ptr % 2 ) {
-		if ( queue[0] != undefined && comboEffect(queue[0].circle, hitPadList[ptr], "y") ) {
-			stage.removeChild(queue[0].circle);
-			queue.shift();
-		}
-	}
-	else {
-		if ( queue[0] != undefined && comboEffect(queue[0].circle, hitPadList[ptr], "x") ) {
-			stage.removeChild(queue[0].circle);
-			queue.shift();
-		}
-	}
+	// let ptr = e.keyCode - 37;
+	// hitPadList[ptr].shadow = null;
+	// if ( ptr % 2 ) {
+	// 	if ( queue[0] != undefined && comboEffect(queue[0].circle, hitPadList[ptr], "y") ) {
+	// 		stage.removeChild(queue[0].circle);
+	// 		queue.shift();
+	// 	}
+	// }
+	// else {
+	// 	if ( queue[0] != undefined && comboEffect(queue[0].circle, hitPadList[ptr], "x") ) {
+	// 		stage.removeChild(queue[0].circle);
+	// 		queue.shift();
+	// 	}
+	// }
 	switch(e.keyCode) {
-		// case 37:
-		// 	console.log("left");
-		// 	// hitPadList[0].shadow = null;
-		// 	// comboEffect(circleLeft, hitPadList[0], "x")
-		// 	/*if( comboEffect(circleLeft, hitPadLeft, "x") ) {
-		// 		stage.removeChild(circleLeft);
-		// 		circleLeft = null;
-		// 	}*/
-		// 	break;
-		// case 38:
-		// 	console.log("up");
-		// 	// hitPadList[1].shadow = null;
-		// 	// comboEffect(circleUp, hitPadList[1], "y");
-		// 	// hitPadUp.shadow = null;
-		// 	// comboEffect(circleUp, hitPadUp, "y");
-		// 	/*if( comboEffect(circleUp, hitPadUp, "y") ) {
-		// 		stage.removeChild(circleUp);
-		// 		circleUp = null;
-		// 	}*/
-		// 	break;
-		// case 39:
-		// 	console.log("right");
-		// 	// hitPadList[2].shadow = null;
-		// 	// comboEffect(circleRight, hitPadList[2], "x");
-		// 	/*if( comboEffect(circleRight, hitPadRight, "x") ) {
-		// 		stage.removeChild(circleRight);
-		// 		circleRight = null;
-		// 	}*/
-		// 	break;
-		// case 40:
-		// 	console.log("down");
-		// 	// hitPadList[3].shadow = null;
-		// 	// comboEffect(circleDown, hitPadList[3], "y");
-		// 	/*if( comboEffect(circleDown, hitPadDown, "y") ) {
-		// 		stage.removeChild(circleDown);
-		// 		circleDown = null;
-		// 	}*/
-		// 	break;
+		case 37:
+			hitPadList[0].shadow = null;
+			if ( queue[0] != undefined && comboEffect(queue[0].circle, hitPadList[0], "x") ) {
+				stage.removeChild(queue[0].circle);
+				queue.shift();
+			}
+			break;
+		case 38:
+			hitPadList[2].shadow = null;
+			if ( queue[0] != undefined && comboEffect(queue[0].circle, hitPadList[2], "x") ) {
+				stage.removeChild(queue[0].circle);
+				queue.shift();
+			}
+			break;
+		case 39:
+			hitPadList[1].shadow = null;
+			if ( queue[0] != undefined && comboEffect(queue[0].circle, hitPadList[1], "y") ) {
+				stage.removeChild(queue[0].circle);
+				queue.shift();
+			}
+			break;
+		case 40:
+			hitPadList[3].shadow = null;
+			if ( queue[0] != undefined && comboEffect(queue[0].circle, hitPadList[3], "y") ) {
+				stage.removeChild(queue[0].circle);
+				queue.shift();
+			}
 	}
+
 };
 
 document.onkeyup = function(e) {
@@ -667,10 +627,10 @@ document.onkeyup = function(e) {
 			hitPadList[0].shadow = new createjs.Shadow("#f44295", 0, 5, 10);
 			break;
 		case 38:
-			hitPadList[1].shadow = new createjs.Shadow("#f44295", 0, 5, 10);
+			hitPadList[2].shadow = new createjs.Shadow("#f44295", 0, 5, 10);
 			break;
 		case 39:
-			hitPadList[2].shadow = new createjs.Shadow("#f44295", 0, 5, 10);
+			hitPadList[1].shadow = new createjs.Shadow("#f44295", 0, 5, 10);
 			break;
 		case 40:
 			hitPadList[3].shadow = new createjs.Shadow("#f44295", 0, 5, 10);
